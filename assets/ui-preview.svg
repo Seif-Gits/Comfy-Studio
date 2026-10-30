@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900" role="img" aria-labelledby="title desc">
+  <title id="title">Comfy Studio interface illustration</title>
+  <desc id="desc">Dark studio interface with a left navigation bar, a grid of generated video cards, and a bottom composer with reference slots, prompt, settings pills, and a Generate button.</desc>
+  <defs>
+    <linearGradient id="thumb1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2b2b1a"/>
+      <stop offset="0.45" stop-color="#6d6a35"/>
+      <stop offset="1" stop-color="#101012"/>
+    </linearGradient>
+    <linearGradient id="thumb2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1c2a2c"/>
+      <stop offset="0.5" stop-color="#2f5a58"/>
+      <stop offset="1" stop-color="#0e1112"/>
+    </linearGradient>
+    <linearGradient id="thumb3" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a1c22"/>
+      <stop offset="0.5" stop-color="#6b3c4a"/>
+      <stop offset="1" stop-color="#120d10"/>
+    </linearGradient>
+    <linearGradient id="lime" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F8FF8F"/>
+      <stop offset="1" stop-color="#F2FF59"/>
+    </linearGradient>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M 28 0 L 0 0 0 28" fill="none" stroke="#1c1c20" stroke-width="1"/>
+    </pattern>
+    <style>
+      .sans { font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif; }
+      .mono { font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace; }
+      .h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+      .sub { font-size: 13px; font-weight: 400; }
+      .nav { font-size: 11px; font-weight: 600; }
+      .pill { font-size: 12px; font-weight: 600; }
+      .small { font-size: 11px; font-weight: 500; }
+      .tiny { font-size: 10px; font-weight: 600; letter-spacing: 1px; }
+      .cardTitle { font-size: 12px; font-weight: 600; }
+    </style>
+  </defs>
+
+  <rect width="1440" height="900" fill="#0b0b0c"/>
+  <rect x="88" y="0" width="1352" height="900" fill="url(#grid)" opacity="0.25"/>
+
+  <!-- Sidebar -->
+  <g class="sans">
+    <rect x="0" y="0" width="88" height="900" fill="#101012"/>
+    <line x1="88" y1="0" x2="88" y2="900" stroke="#2a2a2f"/>
+    <rect x="26" y="22" width="36" height="36" rx="10" fill="url(#lime)"/>
+
+    <g transform="translate(8, 92)">
+      <rect x="8" y="0" width="72" height="62" rx="12" fill="#1d1d20"/>
+      <rect x="37" y="14" width="14" height="12" rx="3" fill="none" stroke="#8d8d96" stroke-width="1.6"/>
+      <circle cx="44" cy="20" r="1.6" fill="#8d8d96"/>
+      <path d="M 37 29 L 44 24 L 48 28 L 51 25 L 51 29 Z" fill="#8d8d96"/>
+      <text x="44" y="45" text-anchor="middle" class="nav" fill="#8d8d96">Image</text>
+    </g>
+    <g transform="translate(8, 160)">
+      <rect x="8" y="0" width="72" height="62" rx="12" fill="#1d1d20"/>
+      <rect x="37" y="14" width="14" height="10" rx="2.5" fill="none" stroke="#F2FF59" stroke-width="1.6"/>
+      <path d="M 42 17 L 47 19 L 42 21 Z" fill="#F2FF59"/>
+      <text x="44" y="45" text-anchor="middle" class="nav" fill="#F2FF59">Video</text>
+    </g>
+    <g transform="translate(8, 228)">
+      <rect x="8" y="0" width="72" height="62" rx="12" fill="#101012"/>
+      <path d="M 35 22 v 10 M 39 19 v 16 M 43 16 v 22 M 47 20 v 14 M 51 23 v 8" stroke="#8d8d96" stroke-width="1.7" stroke-linecap="round"/>
+      <text x="44" y="45" text-anchor="middle" class="nav" fill="#8d8d96">Audio</text>
+    </g>
+
+    <g transform="translate(8, 796)">
+      <rect x="8" y="0" width="72" height="62" rx="12" fill="#101012"/>
+      <path d="M 36 20 h 16 M 44 20 v 8 M 36 36 h 16 M 44 36 v 8" stroke="#8d8d96" stroke-width="1.7" stroke-linecap="round"/>
+      <text x="44" y="55" text-anchor="middle" class="nav" fill="#8d8d96">Manager</text>
+    </g>
+  </g>
+
+  <!-- Header -->
+  <g class="sans">
+    <text x="120" y="62" class="h1" fill="#f2f2f3">Video</text>
+    <text x="120" y="84" class="sub" fill="#8d8d96">Pick a workflow, describe the shot, generate.</text>
+
+    <rect x="1120" y="38" width="260" height="44" rx="12" fill="#1d1d20" stroke="#2a2a2f"/>
+    <text x="1140" y="65" class="pill" fill="#f2f2f3">MiniMax H3 Ref2Va</text>
+    <path d="M 1356 56 l 5 5 l 5 -5" fill="none" stroke="#8d8d96" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Feed cards -->
+  <!-- Card 1 -->
+  <g class="sans">
+    <rect x="120" y="116" width="356" height="330" rx="18" fill="#141416" stroke="#2a2a2f"/>
+    <rect x="121" y="117" width="354" height="238" rx="17" fill="url(#thumb1)"/>
+    <circle cx="298" cy="218" r="30" fill="#000000" opacity="0.35"/>
+    <circle cx="298" cy="218" r="24" fill="#F2FF59"/>
+    <path d="M 291 208 L 309 218 L 291 228 Z" fill="#111111"/>
+    <rect x="138" y="128" width="62" height="22" rx="7" fill="#000000" opacity="0.45"/>
+    <text x="169" y="143" text-anchor="middle" class="tiny" fill="#f2f2f3">VIDEO</text>
+    <text x="140" y="382" class="cardTitle" fill="#f2f2f3">MiniMax H3 Ref2Va</text>
+    <text x="140" y="400" class="small" fill="#8d8d96">Slow push-in · café · 5s</text>
+    <circle cx="446" cy="388" r="12" fill="#1d1d20"/>
+    <path d="M 442 383 l 8 5 l -8 5 z" fill="#8d8d96"/>
+  </g>
+
+  <!-- Card 2 -->
+  <g class="sans">
+    <rect x="500" y="116" width="356" height="330" rx="18" fill="#141416" stroke="#2a2a2f"/>
+    <rect x="501" y="117" width="354" height="238" rx="17" fill="url(#thumb2)"/>
+    <rect x="520" y="136" width="110" height="200" rx="12" fill="#000000" opacity="0.18"/>
+    <circle cx="678" cy="218" r="30" fill="#000000" opacity="0.35"/>
+    <circle cx="678" cy="218" r="24" fill="#F2FF59"/>
+    <path d="M 671 208 L 689 218 L 671 228 Z" fill="#111111"/>
+    <rect x="518" y="128" width="62" height="22" rx="7" fill="#000000" opacity="0.45"/>
+    <text x="549" y="143" text-anchor="middle" class="tiny" fill="#f2f2f3">VIDEO</text>
+    <text x="520" y="382" class="cardTitle" fill="#f2f2f3">Qwen Image 2.1</text>
+    <text x="520" y="400" class="small" fill="#8d8d96">Astronomer · greenhouse · 1:1</text>
+  </g>
+
+  <!-- Card 3 -->
+  <g class="sans">
+    <rect x="880" y="116" width="356" height="330" rx="18" fill="#141416" stroke="#2a2a2f"/>
+    <rect x="881" y="117" width="354" height="238" rx="17" fill="url(#thumb3)"/>
+    <circle cx="1058" cy="218" r="30" fill="#000000" opacity="0.35"/>
+    <circle cx="1058" cy="218" r="24" fill="#F2FF59"/>
+    <path d="M 1051 208 L 1069 218 L 1051 228 Z" fill="#111111"/>
+    <rect x="898" y="128" width="62" height="22" rx="7" fill="#000000" opacity="0.45"/>
+    <text x="929" y="143" text-anchor="middle" class="tiny" fill="#f2f2f3">VIDEO</text>
+    <text x="900" y="382" class="cardTitle" fill="#f2f2f3">Krea 2</text>
+    <text x="900" y="400" class="small" fill="#8d8d96">Ceramic product · stone · 16:9</text>
+  </g>
+
+  <!-- Composer -->
+  <g class="sans">
+    <rect x="120" y="640" width="1200" height="212" rx="26" fill="#141416" stroke="#2a2a2f"/>
+    <text x="146" y="628" class="tiny" fill="#6f6f78">COMPOSER</text>
+
+    <!-- Upload slots -->
+    <g>
+      <rect x="146" y="664" width="96" height="94" rx="14" fill="#1d1d20" stroke="#3b3b42"/>
+      <rect x="158" y="676" width="72" height="54" rx="9" fill="url(#thumb1)"/>
+      <text x="194" y="748" text-anchor="middle" class="tiny" fill="#8d8d96">IMAGE 1</text>
+    </g>
+    <g>
+      <rect x="252" y="664" width="96" height="94" rx="14" fill="#1d1d20" stroke="#3b3b42"/>
+      <rect x="264" y="676" width="72" height="54" rx="9" fill="url(#thumb2)"/>
+      <text x="300" y="748" text-anchor="middle" class="tiny" fill="#8d8d96">IMAGE 2</text>
+    </g>
+    <g>
+      <rect x="358" y="664" width="96" height="94" rx="14" fill="#101012" stroke="#3b3b42" stroke-dasharray="5 4"/>
+      <path d="M 406 696 v 26 M 393 709 h 26" stroke="#F2FF59" stroke-width="2" stroke-linecap="round"/>
+      <text x="406" y="748" text-anchor="middle" class="tiny" fill="#8d8d96">ADD IMAGE</text>
+    </g>
+
+    <!-- Prompt -->
+    <text x="146" y="792" class="pill" fill="#f2f2f3">A slow push-in on a neon-lit café at night, rain on the window,</text>
+    <text x="146" y="812" class="pill" fill="#8d8d96">warm interior light, reflections on wet asphalt, ambient rain…</text>
+
+    <!-- Pills -->
+    <g transform="translate(146, 834)">
+      <rect x="0" y="0" width="116" height="30" rx="9" fill="#1d1d20"/>
+      <text x="14" y="20" class="pill" fill="#f2f2f3">9:16</text>
+      <rect x="126" y="0" width="86" height="30" rx="9" fill="#1d1d20"/>
+      <text x="140" y="20" class="pill" fill="#f2f2f3">5s</text>
+      <rect x="222" y="0" width="106" height="30" rx="9" fill="#1d1d20"/>
+      <text x="236" y="20" class="pill" fill="#f2f2f3">1080p</text>
+      <rect x="338" y="0" width="152" height="30" rx="9" fill="#1d1d20"/>
+      <text x="352" y="20" class="pill" fill="#f2f2f3">Turbo 4-step</text>
+      <rect x="500" y="0" width="126" height="30" rx="9" fill="#1d1d20"/>
+      <text x="514" y="20" class="pill" fill="#f2f2f3">Random seed</text>
+    </g>
+
+    <!-- Generate -->
+    <rect x="1160" y="664" width="136" height="160" rx="22" fill="url(#lime)"/>
+    <path d="M 1228 696 l 7 20 20 7 -20 7 -7 20 -7 -20 -20 -7 20 -7 z" fill="#111111"/>
+    <path d="M 1252 686 l 3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 z" fill="#111111" opacity="0.7"/>
+    <text x="1228" y="786" text-anchor="middle" class="pill" fill="#111111" font-weight="800">GENERATE</text>
+    <text x="1228" y="802" text-anchor="middle" class="tiny" fill="#44440f">CTRL + ENTER</text>
+  </g>
+
+  <!-- Footer note -->
+  <g class="sans">
+    <text x="120" y="880" class="tiny" fill="#6f6f78">INTERFACE ILLUSTRATION · REPLACE WITH A REAL SCREENSHOT</text>
+    <text x="1320" y="880" text-anchor="end" class="tiny" fill="#6f6f78">COMFY STUDIO · MIT</text>
+  </g>
+</svg>

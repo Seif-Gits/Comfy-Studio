@@ -1,0 +1,2 @@
+# Comfy Studio only needs aiohttp. ComfyUI's portable Python already includes it.
+aiohttp>=3.9,<4

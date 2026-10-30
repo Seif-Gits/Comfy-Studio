@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comfy Studio — Workflow Naming Guide</title>
+<style>
+  :root {
+    --bg: #0b0b0c;
+    --s1: #141416;
+    --s2: #1d1d20;
+    --ln: #2a2a2f;
+    --tx: #f2f2f3;
+    --mu: #8d8d96;
+    --ac: #F2FF59;
+    --bad: #ff7a6b;
+    --code: #101012;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--tx);
+    font: 15px/1.55 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 40px 24px 80px; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 32px; }
+  .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; letter-spacing: .02em; }
+  .logo { width: 36px; height: 36px; border-radius: 10px; background: var(--ac); }
+  .back {
+    color: var(--ac); text-decoration: none; font-weight: 600; font-size: 14px;
+    border: 1px solid var(--ln); padding: 8px 14px; border-radius: 10px;
+  }
+  .back:hover { background: var(--s2); }
+  h1 { font-size: 38px; line-height: 1.1; letter-spacing: -.02em; margin: 0 0 14px; }
+  h1 span { color: var(--ac); }
+  .lead { color: var(--mu); font-size: 17px; max-width: 720px; margin: 0 0 28px; }
+  h2 { font-size: 22px; margin: 42px 0 12px; letter-spacing: -.01em; }
+  h3 { font-size: 16px; margin: 26px 0 8px; }
+  p { margin: 0 0 12px; }
+  a { color: var(--ac); }
+  code, pre {
+    font-family: "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  }
+  code {
+    background: var(--code);
+    border: 1px solid var(--ln);
+    border-radius: 6px;
+    padding: 1px 6px;
+    font-size: .9em;
+  }
+  pre {
+    background: var(--code);
+    border: 1px solid var(--ln);
+    border-radius: 14px;
+    padding: 16px 18px;
+    overflow: auto;
+    font-size: 13px;
+    line-height: 1.65;
+    margin: 12px 0 18px;
+    white-space: pre;
+  }
+  pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 22px; font-size: 14px; }
+  th, td { text-align: left; padding: 11px 12px; border-bottom: 1px solid var(--ln); vertical-align: top; }
+  th { color: var(--mu); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; font-weight: 600; }
+  tr:last-child td { border-bottom: 0; }
+  .card {
+    background: var(--s1);
+    border: 1px solid var(--ln);
+    border-radius: 16px;
+    padding: 18px 20px;
+    margin: 16px 0 22px;
+  }
+  .card.note { border-color: #3b3b42; }
+  .card.good { border-color: #4c5320; background: #151709; }
+  .card p:last-child { margin-bottom: 0; }
+  .tag {
+    display: inline-block; padding: 3px 8px; border-radius: 8px;
+    background: var(--s2); color: var(--mu); font-size: 12px; font-weight: 600;
+    margin-bottom: 10px;
+  }
+  ul, ol { padding-left: 22px; margin: 8px 0 16px; }
+  li { margin: 5px 0; }
+  .kbd { background: var(--s2); border: 1px solid var(--ln); border-bottom-width: 2px; border-radius: 6px; padding: 1px 6px; font-size: .9em; }
+  .toc { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 8px; }
+  .toc a {
+    color: var(--mu); text-decoration: none; font-size: 13px;
+    background: var(--s1); border: 1px solid var(--ln); border-radius: 999px; padding: 6px 12px;
+  }
+  .toc a:hover { color: var(--tx); border-color: #44444b; }
+  .foot { margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--ln); color: var(--mu); font-size: 13px; }
+  @media (max-width: 640px) {
+    h1 { font-size: 30px; }
+    .wrap { padding: 24px 16px 60px; }
+    .top { align-items: flex-start; flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="top">
+    <div class="brand"><div class="logo"></div>Comfy Studio</div>
+    <a class="back" href="/">← Back to the studio</a>
+  </div>
+
+  <h1>Workflow <span>Naming Guide</span></h1>
+  <p class="lead">
+    Comfy Studio turns a normal ComfyUI API workflow into an app by reading <strong>node titles</strong>.
+    Rename the nodes you want to expose, export the workflow with <strong>Workflow → Export (API)</strong>,
+    and upload the JSON in <strong>Manager</strong>.
+  </p>
+
+  <div class="card note">
+    <span class="tag">Important</span>
+    <p>Use the <strong>API</strong> export, not the regular UI workflow. The API file is a flat map of node IDs.
+    The UI file contains a <code>"nodes"</code> array and Studio will reject it with a helpful message.</p>
+  </div>
+
+  <div class="toc">
+    <a href="#quick">Quick example</a>
+    <a href="#markers">Markers</a>
+    <a href="#rules">Visibility rules</a>
+    <a href="#media">Media groups</a>
+    <a href="#setup">Setup</a>
+    <a href="#classes">Supported classes</a>
+    <a href="#mistakes">Common mistakes</a>
+  </div>
+
+  <h2 id="quick">The five-minute version</h2>
+  <p>In ComfyUI, rename these nodes:</p>
+  <pre><code>Prompt                  →  Prompt (Input)
+Load Image              →  Load Image (Input optional [Image 1/10])
+Resolution Selector     →  Resolution Selector (Input [1,2])
+Duration                →  Duration (Input {Seconds})
+Steps                   →  Steps (Slider {Steps} [2] min:1/max:50 step:1)
+Custom ratio            →  Custom ratio (Switch {Custom ratio} [1])
+Model loader            →  Model (Setup)
+Save Image              →  Save Image (Output)</code></pre>
+  <p>Export the API workflow and upload it. The app now has a prompt box, a 10-image reference strip,
+  resolution controls, a duration field, a slider, a toggle, a Setup entry, and an image result card.</p>
+
+  <h2 id="markers">Marker reference</h2>
+  <p>A marker is a parenthesised instruction in a node title. A title can contain several markers and rules.</p>
+
+  <table>
+    <thead>
+      <tr><th>Marker</th><th>What it does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>(Output)</code></td><td>Marks a node whose result appears in the gallery. At least one output is required.</td></tr>
+      <tr><td><code>(Input)</code></td><td>Exposes the node's literal fields as app controls.</td></tr>
+      <tr><td><code>(2.Input)</code></td><td>Sets the order in the composer. Numbered inputs come first.</td></tr>
+      <tr><td><code>(Input [1,3])</code></td><td>Exposes only fields 1 and 3 of that node (counted from 1).</td></tr>
+      <tr><td><code>(Input {Label})</code></td><td>Renames the field or group in the app.</td></tr>
+      <tr><td><code>(Input optional)</code></td><td>Makes a media input optional; the branch is disabled when it is empty.</td></tr>
+      <tr><td><code>(Input optional [Image 1/10])</code></td><td>Creates one grouped strip of 10 image slots.</td></tr>
+      <tr><td><code>(Switch {Name} [1])</code></td><td>Exposes a boolean field as a named toggle.</td></tr>
+      <tr><td><code>(Slider {Name} [2] min:0/max:10 step:1)</code></td><td>Renders a numeric field as a slider with limits.</td></tr>
+      <tr><td><code>(Setup)</code></td><td>Moves model-file choices into <strong>Manager → Setup</strong>.</td></tr>
+      <tr><td><code>(Credits 351.6)</code></td><td>Sets a fixed credit price when no price badge is available.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Text, numbers, dropdowns and switches</h3>
+  <p>Studio reads the field type from ComfyUI:</p>
+  <table>
+    <thead><tr><th>ComfyUI value</th><th>Control</th></tr></thead>
+    <tbody>
+      <tr><td>Text / multiline text</td><td>Prompt box or text field</td></tr>
+      <tr><td><code>INT</code> / <code>FLOAT</code></td><td>Number field</td></tr>
+      <tr><td><code>BOOLEAN</code></td><td>Toggle</td></tr>
+      <tr><td><code>COMBO</code> / list</td><td>Dropdown</td></tr>
+      <tr><td><code>seed</code>, <code>noise_seed</code></td><td>Random seed control</td></tr>
+      <tr><td><code>LoadImage</code>, <code>LoadImageMask</code></td><td>Image upload slot</td></tr>
+      <tr><td><code>LoadAudio</code>, <code>VHS_LoadAudio</code></td><td>Audio upload slot</td></tr>
+      <tr><td><code>LoadVideo</code>, <code>VHS_LoadVideo</code></td><td>Video upload slot</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="rules">Visibility rules</h2>
+  <p>Rules hide fields while a named switch is on or off. Put the rule <strong>in the same node title</strong>
+  as the fields it controls. The bracket is a list of field positions on that same node; leave it out to
+  apply the rule to every exposed field on the node.</p>
+  <pre><code>Preset (Input [1]) {custom ratio} off [1]
+Custom width (Input [1]) {custom ratio} on [1]</code></pre>
+  <p>The switch itself is a separate boolean node:</p>
+  <pre><code>Custom ratio (Switch {Custom ratio} [1])</code></pre>
+  <p>One node can carry several rules:</p>
+  <pre><code>Resolution Selector (1.Input [1]) (2.Input [2]) {custom ratio} off [1] {custom ratio} on [2]</code></pre>
+  <p>This shows field 1 while the switch is off, and field 2 while it is on. Hidden fields are not sent
+  with the generation request.</p>
+
+  <h2 id="media">Grouped media inputs</h2>
+  <p>Use the same group name and kind on every member:</p>
+  <pre><code>Load Image (Input optional [Image 1/10])
+Load Image (Input optional [Image 2/10])
+...
+Load Image (Input optional [Image 10/10])</code></pre>
+  <p>The syntax is <code>[&lt;group name&gt; &lt;position&gt;/&lt;max&gt;]</code>. The kind comes from the loader
+  class. The group becomes one growing, drag-to-reorder strip in the composer. Leave out <code>optional</code>
+  to make the group required.</p>
+
+  <h2 id="setup">Setup fields</h2>
+  <p>Use <code>(Setup)</code> for model files, VAEs, text encoders, and LoRAs. These are chosen once in
+  <strong>Manager → Setup</strong> and saved in <code>setup/&lt;workflow&gt;.json</code>.</p>
+  <pre><code>Load Diffusion Model (Setup)
+Load CLIP (Setup)
+Load VAE (Setup)
+Load LoRA (Setup)</code></pre>
+  <p>Studio validates the choices against ComfyUI's available files and shows “Setup needed” when
+  something is missing.</p>
+
+  <h2 id="classes">Supported output classes</h2>
+  <ul>
+    <li><strong>Images:</strong> <code>SaveImage</code>, <code>PreviewImage</code>, <code>SaveAnimatedWEBP</code>, <code>SaveAnimatedPNG</code></li>
+    <li><strong>Video:</strong> <code>SaveVideo</code>, <code>VHS_VideoCombine</code></li>
+    <li><strong>Audio:</strong> <code>SaveAudio</code>, <code>SaveAudioMP3</code>, <code>SaveAudioOpus</code>, <code>PreviewAudio</code></li>
+  </ul>
+  <p>Any node with <code>(Output)</code> is treated as an output. Unknown classes fall back to image, or to
+  video/audio when the class name contains those words.</p>
+
+  <h2 id="mistakes">Common mistakes</h2>
+  <table>
+    <thead><tr><th>Message / symptom</th><th>Fix</th></tr></thead>
+    <tbody>
+      <tr><td>“Not an API workflow.”</td><td>Use <strong>Workflow → Export (API)</strong>, not the normal export.</td></tr>
+      <tr><td>“No node titled ‘(Output)’.”</td><td>Rename your save or preview node, e.g. <code>Save Image (Output)</code>.</td></tr>
+      <tr><td>“Setup needed.”</td><td>Open <strong>Manager → Setup</strong> and choose an installed model file.</td></tr>
+      <tr><td>A field is missing.</td><td>It may be linked to another node, or skipped by <code>[1,3]</code>. Check the field order.</td></tr>
+      <tr><td>A switch does not hide anything.</td><td>Put the rule in the same node title and match the switch name exactly.</td></tr>
+      <tr><td>Generate stays disabled.</td><td>A required media input is empty, or the workflow has no prompt. Add the input or mark it <code>optional</code>.</td></tr>
+      <tr><td>An upload is ignored.</td><td>The loader class must be supported. Add custom classes to <code>MEDIA</code> in <code>studio.py</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Before you upload</h2>
+  <ul>
+    <li>The workflow runs end-to-end in ComfyUI.</li>
+    <li>At least one node is marked <code>(Output)</code>.</li>
+    <li>Model loaders are marked <code>(Setup)</code>, not exposed as free text.</li>
+    <li>Optional media inputs are marked <code>optional</code>.</li>
+    <li>Grouped media uses the same group name and kind on every member.</li>
+    <li>Switch names in rules match the <code>(Switch {Name} …)</code> exactly.</li>
+  </ul>
+
+  <div class="card good">
+    <p><strong>Tip:</strong> upload the same filename to replace a workflow. Your saved Setup choices are kept.</p>
+  </div>
+
+  <p class="foot">
+    Comfy Studio · Open Source Higgsfield 2026 · MIT License ·
+    <a href="/">Back to the studio</a>
+  </p>
+
+</div>
+</body>
+</html>
