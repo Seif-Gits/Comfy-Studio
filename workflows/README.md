@@ -5,10 +5,7 @@ These are **API-format** ComfyUI workflows. Comfy Studio reads them and builds t
 | File | Output | Model | Notes |
 | --- | --- | --- | --- |
 | `Qwen_2.1.json` | Image | Qwen Image 2.1 | Text-to-image, up to 10 reference images, resolution selector |
-| `Qwen_2.1_5.json` | Image | Qwen Image 2.1 | Alternate control layout |
-| `Qwen_2.1_6.json` | Image | Qwen Image 2.1 | Alternate layout with a custom-ratio switch |
 | `Krea-2.json` | Image | Krea 2 | Text-to-image with turbo + realism LoRAs |
-| `Krea-2_T2I_again.json` | Image | Krea 2 | Alternate Krea 2 layout |
 | `Minimax_H3_Ref2Va.json` | Video + audio | MiniMax H3 | Reference-to-video, up to 10 images, 3 videos, 3 audio clips |
 
 The optional partner workflow is in [`../examples/partner-workflows/`](../examples/partner-workflows/).
