@@ -24,18 +24,18 @@ Comfy Studio is a small local web app that sits in front of ComfyUI:
 - **One prompt box** for image, video, and audio workflows.
 - **Model switcher** that reads the API workflows in `workflows/`.
 - **Upload slots** for reference images, videos, and audio, including grouped multi-image inputs such as 1/10 … 10/10.
-- **Smart controls** generated from node titles: text fields, number fields, dropdowns, toggles, sliders, and fields that only appear when a switch is on.
+- **Smart controls** generated from node titles: text fields, number fields, dropdowns (including supported dynamic-combo fields), toggles, sliders, and fields that only appear when a switch is on. Slider values can also be entered precisely by clicking the displayed number.
 - **Per-workflow Setup** for model files, so users choose a checkpoint once and the app remembers it.
 - **Gallery** with previews, download, and “copy inputs to current generation”.
-- **Credit estimate** for ComfyUI API/partner nodes that publish a price badge.
+- **API-node detection and live credit estimates.** Comfy Studio identifies ComfyUI API/partner nodes, marks paid workflows with a crown, and calculates prices from the node price formula when ComfyUI provides one. A `(Credits)` mark can explicitly identify a paid node; `(Credits 351.6)` sets a fixed fallback price.
 - **Workflow Manager** to add, replace, rename, and delete workflows without editing code.
 - **One-click launch** on Windows: starts ComfyUI if needed and opens the studio in your browser.
 
 The backend is a **single Python file** (`studio.py`). The frontend is a **single HTML file** (`index.html`). There is no npm, no build step, and no database.
 
-![Comfy Studio interface illustration](assets/ui-preview.svg)
+![Comfy Studio running a MiniMax H3 reference-to-video workflow](docs/screenshots/video-studio.png)
 
-*Interface illustration. Replace this with a real screenshot after your first run — see [`docs/screenshots/README.md`](docs/screenshots/README.md).*
+*The screenshot shows the video composer, multi-reference uploads, model controls, and generated results. The original illustration remains available at [`assets/ui-preview.svg`](assets/ui-preview.svg).*
 
 ---
 
@@ -204,6 +204,14 @@ COMFY_URL="http://192.168.1.50:8188" COMFY_START=0 python3 studio.py
 
 ---
 
+## Tests
+
+The repository includes GPU-free unit tests for marker parsing, field selection, dynamic-combo metadata, optional-input graph pruning, and credit-formula evaluation. Run them with:
+
+```bash
+python -m unittest discover -s tests -v
+```
+
 ## Project structure
 
 ```text
@@ -216,6 +224,7 @@ comfy-studio/
 ├── docs/                      # guides, model list, demo script, submission checklist
 ├── assets/                    # banner and UI illustration
 ├── scripts/validate_workflows.py
+├── tests/                      # GPU-free logic tests
 ├── Naming Guide.html          # in-app workflow naming reference
 ├── Start Comfy Studio.bat     # Windows: start ComfyUI if needed + Studio
 ├── Start Studio Only.bat      # Windows: Studio only

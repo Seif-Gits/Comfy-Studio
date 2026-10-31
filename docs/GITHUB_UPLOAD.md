@@ -18,7 +18,7 @@ Download it from <https://desktop.github.com/> and sign in with the account you 
 
 1. Open GitHub Desktop.
 2. Choose **File → Add Local Repository**.
-3. Select this folder (`comfy-studio-github`).
+3. Select this folder (`comfy-studio`).
 4. If GitHub Desktop says it is not a Git repository, click **create a repository**.
 5. Keep the name `comfy-studio`, choose `main` as the branch, and click **Create Repository**.
 

@@ -28,10 +28,10 @@ ul{margin:8px 0 8px 20px;color:var(--mu)}li{margin:5px 0}
 <table><tr><th>Mark</th><th>Put it on</th><th>What the user gets</th></tr>
 <tr><td><code>(Input)</code></td><td>Any node</td><td>Every simple field of the node becomes a setting next to the model picker. <b>Load Image / Audio / Video</b> nodes become upload boxes, and the first text field becomes the prompt box.</td></tr>
 <tr><td><code>(Switch)</code></td><td>A node with a true/false field</td><td>A toggle switch. It starts <b>off</b>, and off means “whatever the workflow says”. On sends the opposite.</td></tr>
-<tr><td><code>(Slider min:0/max:10)</code></td><td>A node with a number field</td><td>A slider with the numbers shown live.</td></tr>
+<tr><td><code>(Slider min:0/max:10)</code></td><td>A node with a number field</td><td>A slider with the number shown live. Clicking the number lets the user type an exact value.</td></tr>
 <tr><td><code>(Setup)</code></td><td>Model, VAE, CLIP and LoRA loaders</td><td>Not shown while generating. It appears under <b>Manager → Setup</b> so each person can pick the model files on their own computer. A missing or empty file is highlighted in red.</td></tr>
 <tr><td><code>(Output)</code></td><td>The Save node</td><td>Marks the result. Its type (image, video or audio) decides which tab the workflow appears in.</td></tr>
-<tr><td><code>(Credits 351.6)</code></td><td>An API node</td><td>A fixed price for that node, shown on the Generate button. Only needed if Studio can’t work the price out itself (see section 5).</td></tr></table>
+<tr><td><code>(Credits)</code></td><td>A closed-source (API) node</td><td>Marks the workflow as a paid model. It gets a <b>crown</b> in the model list, and the Generate button shows the credits it will charge for the current settings, updated live as the user changes them. Write a number, <code>(Credits 351.6)</code>, only if you want to fix the price by hand.</td></tr></table>
 
 <h2>2. Add-ons</h2>
 <p>Write these inside the same parentheses, in any order, unless it says otherwise.</p>
@@ -57,7 +57,7 @@ ul{margin:8px 0 8px 20px;color:var(--mu)}li{margin:5px 0}
 <tr><td><code>Some Node (2.Slider {Seconds} [5] min:3/max:15)</code></td><td>A “Seconds” slider, shown second.</td></tr>
 <tr><td><code>Load Diffusion Model (Setup {Main model} [1])</code></td><td>A “Main model” drop-down in Manager → Setup.</td></tr>
 <tr><td><code>Save Video (Output)</code></td><td>The result. The workflow appears under Video.</td></tr>
-<tr><td><code>Seedance Reference to Video (Credits 351.6)</code></td><td>“~351.6 credits” on the Generate button.</td></tr></table>
+<tr><td><code>Seedance Reference to Video (Credits)</code></td><td>A crown in the model list, and the live price (for example “~351.6 credits”) on the Generate button.</td></tr></table>
 
 <h2>4. Good to know</h2>
 <ul>
@@ -69,11 +69,12 @@ ul{margin:8px 0 8px 20px;color:var(--mu)}li{margin:5px 0}
 <li><b>Names with dots</b> such as <code>Qwen 2.1</code> work. Workflow names come from the file name, and you can change them under Manager → Rename.</li>
 </ul>
 
-<h2>5. Credits on the Generate button</h2>
-<p>Closed-source API nodes in ComfyUI carry a price formula, the same one that draws the “~351.6 credits/Run” badge on the node. Studio reads that formula from ComfyUI, works out the price for the exact settings and uploads you have chosen, and shows it on the button. The total includes every API node that will actually run, and a price range appears as “120–350”.</p>
+<h2>5. Credits and the crown</h2>
+<p>Closed-source API nodes in ComfyUI carry a price formula, the same one that draws the “~351.6 credits/Run” badge on the node. Studio reads that formula from ComfyUI, works out the price for the exact settings and uploads the user has chosen, and shows it on the Generate button. It recalculates a moment after every change, so the number follows the sliders, drop-downs and added pictures. The total includes every API node that will actually run, and a price that varies shows as a range such as “120–350”.</p>
 <ul>
-<li>Nothing is shown when the workflow has no API nodes.</li>
-<li>If a price can’t be worked out, the terminal window prints which node and why. In that case use <code>(Credits 351.6)</code> on the node.</li>
+<li>Write <code>(Credits)</code> on the API node. Workflows with it get a crown 👑 in the model list, the model button and the Manager.</li>
+<li>Studio also spots API nodes by itself, so a workflow still gets its price and crown if you forget the mark.</li>
+<li>If a price can’t be worked out, the button says “uses credits”, and the terminal window prints which node and why. A very old ComfyUI may not provide price formulas at all. In that case use <code>(Credits 351.6)</code> to set a fixed price.</li>
 <li>Credits are calculated as dollars × 211, the rate ComfyUI uses. If your rate differs, set <code>COMFY_CREDITS_PER_USD</code> before starting Studio.</li>
 </ul>
 

@@ -64,7 +64,7 @@ Duration (Input)
 
 - Text-like fields (`text`, `prompt`, `value`, `string`) become the prompt box or a text field.
 - Numbers become number controls.
-- Combo/list fields become dropdowns.
+- Combo/list fields become dropdowns. Supported dynamic combos expose the selected variant’s sub-fields using ComfyUI’s node metadata.
 - Booleans become switches.
 - Fields named `seed` or `noise_seed` become random-seed controls.
 
@@ -164,7 +164,7 @@ Custom ratio (Switch {Custom ratio} [1])
 
 ### `(Slider {Name} [2] min:0/max:10 step:1)`
 
-Renders a numeric field as a range slider.
+Renders a numeric field as a range slider. The displayed number is clickable, so the user can type an exact value; the value is constrained by the configured minimum and maximum.
 
 ```text
 Steps (Slider {Steps} [2] min:1/max:50 step:1)
@@ -192,15 +192,15 @@ Setup fields are validated:
 
 Saved Setup choices live in `setup/<workflow>.json` and are git-ignored.
 
-### `(Credits 351.6)`
+### `(Credits)` and `(Credits 351.6)`
 
-Sets a fixed credit price for a node when ComfyUI does not publish a price badge, or when its formula cannot be evaluated.
+`(Credits)` explicitly marks a paid/API node. The workflow receives a crown in the model list and Manager. Studio also recognizes API nodes from ComfyUI metadata when available, even if the mark is omitted. When ComfyUI provides a `price_badge` formula, Studio estimates the current credit cost from the workflow settings and connected inputs.
 
 ```text
-Some API Node (Credits 351.6)
+Some API Node (Credits)
 ```
 
-Studio still tries to compute prices automatically for ComfyUI API nodes with a `price_badge`. `(Credits …)` is a fallback.
+Use a number, such as `(Credits 351.6)`, to set a fixed credit price when a formula is unavailable or cannot be evaluated. The formula-based estimate is only as accurate as the information provided by the installed ComfyUI version.
 
 ### Visibility rules: `{switch} on [1,2]`
 

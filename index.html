@@ -109,6 +109,8 @@ dialog::backdrop{opacity:0;transition:opacity .22s ease,overlay .22s allow-discr
 .sv{min-width:3ch;text-align:right;font-variant-numeric:tabular-nums}
 #go small{font-size:11px;font-weight:700;letter-spacing:.01em;text-transform:none;opacity:.72}#go small:empty{display:none}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+.crown{width:15px;height:15px;color:var(--ac);flex:none;margin-right:6px;vertical-align:-2px;fill:rgba(242,255,89,.22)}.pill .crown{margin:0 -1px 0 0}.opt b{display:inline-flex;align-items:center}
+.sv{cursor:text;border-radius:6px;padding:1px 4px}.sv:hover{background:#2a2a30}.sv .ie{text-align:right}
 dialog{margin:auto;width:min(640px,92vw);background:var(--s1);color:var(--tx);border:1px solid var(--ln);border-radius:20px;padding:22px}
 dialog::backdrop{background:#000b}
 .row{display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid var(--ln)}.row div{flex:1;min-width:0}.row span{color:var(--mu);font-size:12px}
@@ -138,8 +140,9 @@ dialog::backdrop{background:#000b}
 const $=s=>document.querySelector(s);
 const h=(t,p={},...k)=>{const e=document.createElement(t);for(const[a,v]of Object.entries(p))a.startsWith('on')?e.addEventListener(a.slice(2),v):a==='class'?e.className=v:a in e?e[a]=v:e.setAttribute(a,v);e.append(...k.flat().filter(x=>x!=null&&x!==false));return e};
 const ls=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},sv=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch{}};
-const P={image:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m4 18 5-5 4 4 3-3 4 4"/>',video:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/>',audio:'<path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/>',set:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',up:'<path d="M12 16V5m0 0-4 4m4-4 4 4M5 19h14"/>',chev:'<path d="m9 6 6 6-6 6"/>'};
+const P={image:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="m4 18 5-5 4 4 3-3 4 4"/>',video:'<rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/>',audio:'<path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/>',set:'<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>',up:'<path d="M12 16V5m0 0-4 4m4-4 4 4M5 19h14"/>',chev:'<path d="m9 6 6 6-6 6"/>',crown:'<path d="m2 6 4.5 11h11L22 6l-5.5 5L12 4 7.5 11z"/><path d="M6.5 20.5h11"/>'};
 const ic=n=>{const s=h('span');s.innerHTML=`<svg viewBox="0 0 24 24">${P[n]}</svg>`;return s.firstChild};
+const crownIc=()=>{const e=ic('crown');e.classList.add('crown');e.setAttribute('aria-label','Closed-source model, uses credits');return e};
 const MODES={image:'Image',video:'Video',audio:'Audio'},HINT={image:'Describe the image you want',video:'Describe the scene and motion',audio:'Describe the sound, or type the words to speak'};
 const MEDIA=new Set(['image','audio','video']),key=i=>i.node+'.'+i.field;
 let mode=ls('mode','video'),models=[],cur=null,st={},lastPrompt='',feed=ls('feed',[]);
@@ -176,8 +179,8 @@ function shut(){const p=$('#pop');popFor=null;p.classList.remove('in');clearTime
 addEventListener('click',e=>{if(!e.target.closest('#pop,.pill'))shut()});
 addEventListener('keydown',e=>{if(e.key==='Escape')shut()});
 function drawModelPill(){
-  const b=$('#model');b.replaceChildren(h('span',{},cur.name),ic('chev'));
-  b.onclick=()=>openPop(b,h('div',{},models.map(m=>h('button',{class:'opt'+(m===cur?' on':''),onclick:()=>{cur=m;sv('pick-'+mode,m.id);shut();drawComposer()}},h('b',{},m.name),h('span',{class:setupBad(m).length?'bad':''},setupBad(m).length?'Setup needed':kinds(m))))));
+  const b=$('#model');b.replaceChildren(...(cur.paid?[crownIc()]:[]),h('span',{},cur.name),ic('chev'));
+  b.onclick=()=>openPop(b,h('div',{},models.map(m=>h('button',{class:'opt'+(m===cur?' on':''),onclick:()=>{cur=m;sv('pick-'+mode,m.id);shut();drawComposer()}},h('b',{},...(m.paid?[crownIc()]:[]),m.name),h('span',{class:setupBad(m).length?'bad':''},setupBad(m).length?'Setup needed':kinds(m))))));
 }
 function drawComposer(){
   const m=cur,s=m&&state(m),mt=mainText(m);
@@ -187,7 +190,7 @@ function drawComposer(){
   $('#slots').replaceChildren(...mediaUnits(m).map(u=>u.one?slot(u.one):strip(u)));
   const p=$('#prompt');p.hidden=!mt;p.placeholder=mt?(mt.named?mt.label:HINT[mode]):'';p.value=mt?s.vals[key(mt)]:'';
   p.oninput=e=>{s.vals[key(mt)]=lastPrompt=e.target.value;fitPrompt();sync()};fitPrompt();
-  shut();drawModelPill();drawPills();sync();
+  shut();drawModelPill();drawPills();sync();fitBox();
 }
 function strip(u){  // one growing, re-orderable list of uploads; the Nth file goes to the node marked N/max
   const L=state(cur).lists[u.id]||(state(cur).lists[u.id]=[]),max=u.members.length,box=h('div',{class:'strip'});
@@ -251,15 +254,24 @@ function setGone(b,gone){  // fade out and collapse (or open up and fade in) so 
   else{b.classList.remove('gone');b.style.maxWidth=(b.scrollWidth+40)+'px';setTimeout(()=>{if(!b.classList.contains('gone'))b.style.maxWidth=''},320)}
   b.disabled=gone;b.setAttribute('aria-hidden',gone);
 }
-const applyVis=()=>document.querySelectorAll('#pills .pill').forEach(b=>b._i&&setGone(b,!shown(b._i)));
+const applyVis=()=>{document.querySelectorAll('#pills .pill').forEach(b=>b._i&&setGone(b,!shown(b._i)));setTimeout(fitBox,340)};
 function drawPills(){  // every non-prompt field becomes a pill next to the model picker
   const v=state(cur).vals,mt=mainText(cur),ex=cur.inputs.filter(i=>i.kind==='param'||(i.kind==='text'&&i!==mt));
   $('#pills').replaceChildren(...[setupBad(cur).length?h('button',{class:'pill warn',title:setupBad(cur).map(e=>e.label).join(', '),onclick:()=>manage(cur.id)},'⚠ Setup needed'):null,...ex.map(i=>{
     const k=key(i),dup=ex.filter(x=>x.kind==='param'&&x.field===i.field).length>1,nm=i.named||i.kind==='text'||dup?i.label:i.field.replace(/_/g,' ');
-    if(i.slider){const lo=i.min!=null?i.min:0,hi=i.max!=null?i.max:Math.max(10,Math.abs(Number(i.value))*2||10),stp=i.step||(i.type==='int'?1:(hi-lo)/100),dec=i.type==='int'?0:Math.min(3,(String(stp).split('.')[1]||'').length);
+    if(i.slider){const lo=i.min!=null?i.min:0,hi=i.max!=null?i.max:Math.max(10,Math.abs(Number(i.value))*2||10),stp=i.step||(i.type==='int'?1:(hi-lo)/100),dec=i.type==='int'?0:Math.max(1,Math.min(3,(String(stp).split('.')[1]||'').length));
       const rg=h('input',{type:'range',class:'rg',min:lo,max:hi,step:stp,value:v[k]!==undefined?v[k]:i.value,'aria-label':nm}),sv=h('b',{class:'sv'});
-      const upd=()=>{sv.textContent=Number(rg.value).toFixed(dec);rg.style.setProperty('--p',((rg.value-lo)/(hi-lo||1)*100)+'%')};
+      const cur=()=>v[k]!==undefined?Number(v[k]):Number(rg.value);
+      const upd=()=>{const x=cur();sv.textContent=dec?String(+x.toFixed(Math.max(dec,3))):String(Math.round(x));rg.style.setProperty('--p',(Math.min(1,Math.max(0,(x-lo)/(hi-lo||1)))*100)+'%')};
       rg.oninput=()=>{v[k]=dec?String(Number(rg.value)):String(Math.round(rg.value));upd();schedulePrice()};upd();
+      sv.title='Click to type a value';
+      sv.onclick=()=>{if(sv.querySelector('input'))return;let done=false;  // type an exact number; Enter confirms, Esc cancels
+        const inp=h('input',{class:'ie',type:'number',value:cur(),min:lo,max:hi,step:dec?'any':1});
+        const end=save=>{if(done)return;done=true;
+          if(save&&inp.value.trim()!==''){let n=Number(inp.value);if(!isNaN(n)){n=Math.min(hi,Math.max(lo,n));if(!dec)n=Math.round(n);v[k]=String(n);rg.value=n;schedulePrice()}}
+          upd()};
+        inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();end(true)}else if(e.key==='Escape'){e.preventDefault();end(false)}};inp.onblur=()=>end(true);
+        sv.replaceChildren(inp);inp.style.width=Math.max(3,String(inp.value).length+2)+'ch';inp.focus();inp.select()};
       const sb=h('div',{class:'pill sl'},h('i',{},nm),rg,sv);sb._i=i;if(!shown(i)){sb.classList.add('gone');sb.setAttribute('aria-hidden',true)}return sb}
     const val=()=>v[k]!==undefined?v[k]:i.value,isB=i.kind==='param'&&i.type==='bool',b=h('button',{class:'pill'+(isB?' tog':'')});
     const paint=()=>{if(isB){b.classList.toggle('on',flipped(i));b.setAttribute('role','switch');b.setAttribute('aria-checked',flipped(i))}
@@ -361,7 +373,7 @@ async function manage(openId,files){
         else c=h('input',{type:e.type==='int'||e.type==='float'?'number':'text',value:e.value??'',step:e.type==='float'?'any':1,oninput:v=>ch(e.type==='text'?v.target.value:Number(v.target.value))});
         return h('label',{class:'fld'+(bad?' bad':'')},e.label,c,bad?h('small',{},e.error==='empty'?'This is empty. Choose a value.':'“'+e.value+'” was not found in ComfyUI. Choose one from the list.'):null)}),
         h('button',{class:'save',onclick:async()=>{if(!Object.keys(vals).length)return;try{await api('/api/workflows/'+encodeURIComponent(m.id)+'/setup',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({values:vals})});await load();manage(m.id)}catch(x){$('#merr').textContent=x.message}}},'Save setup'))};
-      return h('div',{class:'wf'},h('div',{class:'row'},h('div',{},h('b',{},m.name),h('br'),m.type?h('span',{},`${MODES[m.type]} output, ${m.inputs.length} inputs`):h('span',{class:'bad'},m.error||'No (Output) node found'),...(m.warns||[]).map(w=>h('span',{class:'bad'},' '+w)),nb.length?h('div',{},h('span',{class:'bad'},'Needs setup: '+nb.map(e=>e.label).join(', '))):null),
+      return h('div',{class:'wf'},h('div',{class:'row'},h('div',{},h('b',{},...(m.paid?[crownIc(),' ']:[]),m.name),h('br'),m.type?h('span',{},`${MODES[m.type]} output, ${m.inputs.length} inputs`):h('span',{class:'bad'},m.error||'No (Output) node found'),...(m.warns||[]).map(w=>h('span',{class:'bad'},' '+w)),nb.length?h('div',{},h('span',{class:'bad'},'Needs setup: '+nb.map(e=>e.label).join(', '))):null),
         (m.setup||[]).length?h('button',{class:'lnk'+(nb.length?' warn':''),onclick:()=>manage(open?null:m.id)},nb.length?'⚠ Setup':'Setup'):null,
         h('button',{class:'lnk',onclick:()=>ren(m)},'Rename'),h('button',{class:'lnk',onclick:()=>rep.click()},'Replace'),rep,
         h('button',{class:'lnk',onclick:async()=>{if(confirm('Delete '+m.name+'?')){await api('/api/workflows/'+encodeURIComponent(m.id),{method:'DELETE'});await load();manage()}}},'Delete')),
@@ -383,18 +395,21 @@ let navPos=ls('nav','left');const setNav=p=>{navPos=p;sv('nav',p);document.body.
 const hasF=e=>e.dataTransfer&&[...e.dataTransfer.types].includes('Files');
 const comp=$('.comp');
 const fitPrompt=()=>{const p=$('#prompt');if(comp.classList.contains('sized')){p.style.height='';return}p.style.height='auto';p.style.height=Math.min(p.scrollHeight,260)+'px'};
-(function(){const z=ls('comp',null);if(z){if(z.h){comp.classList.add('sized');comp.style.height=z.h+'px'}if(z.w)comp.style.maxWidth=z.w+'px'}})();
-document.querySelectorAll('.edge').forEach(e=>{  // hover the top / left / right edge and drag; the box stays centred and anchored to the bottom
-  e.ondblclick=()=>{comp.classList.remove('sized');comp.style.height='';comp.style.maxWidth='';sv('comp',null);fitPrompt()};
+const natH=()=>{const k=comp.style.minHeight;comp.style.minHeight='';const n=comp.offsetHeight;comp.style.minHeight=k;return n};  // the height the inputs need right now
+const natW=()=>Math.max(380,...[...comp.querySelectorAll('.bar .pill:not(.gone),#slots .slot')].map(e=>Math.max(e.offsetWidth,e.scrollWidth)))+$('#go').offsetWidth+18+2*16+4;  // widest input + button + padding
+function fitBox(){const w=parseInt(comp.style.maxWidth)||0;if(w&&comp.style.display!=='none'&&innerWidth>720){const need=natW();if(w<need)comp.style.maxWidth=Math.min($('footer').clientWidth-56,need)+'px'}}
+addEventListener('resize',fitBox);
+(function(){const z=ls('comp',null);if(z){if(z.h){comp.classList.add('sized');comp.style.minHeight=z.h+'px'}if(z.w)comp.style.maxWidth=z.w+'px'}})();
+document.querySelectorAll('.edge').forEach(e=>{  // hover the top / left / right edge and drag; the box stays centred, anchored to the bottom, and never gets smaller than its inputs
+  e.ondblclick=()=>{comp.classList.remove('sized');comp.style.minHeight='';comp.style.maxWidth='';sv('comp',null);fitPrompt()};
   e.onpointerdown=ev=>{
     ev.preventDefault();e.setPointerCapture(ev.pointerId);
-    const side=e.classList.contains('t')?'t':e.classList.contains('l')?'l':'r',x0=ev.clientX,y0=ev.clientY,h0=comp.offsetHeight,w0=comp.offsetWidth,sl=$('#slots'),
-      minH=sl.offsetHeight+(sl.childElementCount?10:0)+56+$('.bar').offsetHeight+10+34,maxH=Math.max(minH,innerHeight-140),maxW=$('footer').clientWidth-56;
+    const side=e.classList.contains('t')?'t':e.classList.contains('l')?'l':'r',x0=ev.clientX,y0=ev.clientY,h0=comp.offsetHeight,w0=comp.offsetWidth,maxH=Math.max(natH(),innerHeight-140),maxW=$('footer').clientWidth-56;
     e.onpointermove=m=>{
-      if(side==='t'){comp.classList.add('sized');$('#prompt').style.height='';comp.style.height=Math.min(maxH,Math.max(minH,h0+y0-m.clientY))+'px'}
-      else comp.style.maxWidth=Math.min(maxW,Math.max(Math.min(560,maxW),w0+2*(side==='r'?m.clientX-x0:x0-m.clientX)))+'px';
+      if(side==='t'){comp.classList.add('sized');$('#prompt').style.height='';comp.style.minHeight=Math.min(maxH,Math.max(natH(),h0+y0-m.clientY))+'px'}
+      else comp.style.maxWidth=Math.min(maxW,Math.max(Math.min(natW(),maxW),w0+2*(side==='r'?m.clientX-x0:x0-m.clientX)))+'px';
     };
-    e.onpointerup=e.onpointercancel=()=>{e.onpointermove=null;sv('comp',{h:comp.classList.contains('sized')?comp.offsetHeight:0,w:parseInt(comp.style.maxWidth)||0})};
+    e.onpointerup=e.onpointercancel=()=>{e.onpointermove=null;sv('comp',{h:parseInt(comp.style.minHeight)||0,w:parseInt(comp.style.maxWidth)||0})};
   };
 });
 async function copyText(t){try{await navigator.clipboard.writeText(t)}catch{const a=h('textarea',{value:t});document.body.append(a);a.select();document.execCommand('copy');a.remove()}}
@@ -434,7 +449,7 @@ function openItem(it){  // the result on the left, everything that went into it 
 }
 let shownMode=null,priceKey='',priceT=0;
 const fmtCr=n=>n.toLocaleString(undefined,{maximumFractionDigits:1});
-const schedulePrice=()=>{clearTimeout(priceT);priceT=setTimeout(refreshPrice,350)};
+const schedulePrice=()=>{clearTimeout(priceT);priceT=setTimeout(refreshPrice,250)};
 async function refreshPrice(){  // ask the server what the API nodes in this workflow will charge for these settings
   const m=cur,c=$('#cost');if(!m){c.textContent='';return}
   const s=state(m),vals={},present=[];
@@ -442,7 +457,7 @@ async function refreshPrice(){  // ask the server what the API nodes in this wor
   for(const u of mediaUnits(m))if(u.members)u.members.forEach((mem,n)=>{if((s.lists[u.id]||[])[n])present.push(key(mem))});
   const body=JSON.stringify({workflow:m.id,vals,present});if(body===priceKey)return;priceKey=body;
   try{const r=await api('/api/price',{method:'POST',headers:{'Content-Type':'application/json'},body});
-    if(cur===m)c.textContent=r.credits?'~'+(r.credits[0]===r.credits[1]?fmtCr(r.credits[0]):fmtCr(r.credits[0])+'–'+fmtCr(r.credits[1]))+' credits':''}catch{if(cur===m)c.textContent=''}
+    if(cur===m)c.textContent=r.credits?'~'+(r.credits[0]===r.credits[1]?fmtCr(r.credits[0]):fmtCr(r.credits[0])+'–'+fmtCr(r.credits[1]))+' credits':(m.paid?'uses credits':'')}catch{if(cur===m)c.textContent=m.paid?'uses credits':''}
 }
 $('#go').onclick=go;
 addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))go()});

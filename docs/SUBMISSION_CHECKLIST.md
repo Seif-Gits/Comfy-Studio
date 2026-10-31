@@ -10,7 +10,7 @@ You do **not** need to be a programmer to submit this. Follow the steps in order
 
 - [ ] ComfyUI runs on your computer.
 - [ ] At least one of the included workflows runs in ComfyUI (Qwen Image 2.1 is the easiest).
-- [ ] This folder (`comfy-studio-github`) is on your computer.
+- [ ] This folder (`comfy-studio`) is on your computer.
 - [ ] You have a GitHub account. If not, create one free at <https://github.com/join>.
 - [ ] You have a screen recorder (OBS, Xbox Game Bar, or Loom).
 
@@ -24,7 +24,7 @@ You do **not** need to be a programmer to submit this. Follow the steps in order
 ComfyUI_windows_portable\
 ├── ComfyUI\
 │   ├── main.py
-│   ├── comfy-studio-github\   <-- this folder
+│   ├── comfy-studio\            <-- this folder
 │   └── ...
 └── python_embeded\
 ```
@@ -34,37 +34,15 @@ ComfyUI_windows_portable\
 4. Pick **Qwen 2.1**, type a simple prompt, and press **Generate**.
 5. If it works, you are ready. If not, see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md).
 
-**Important:** the folder name in the tree is `comfy-studio-github`; you can rename it to `comfy-studio` before uploading. The repo name on GitHub can be `comfy-studio` either way.
+**Important:** the ZIP extracts to a folder named `comfy-studio`. Put that folder inside your ComfyUI folder, next to `main.py`.
 
 ---
 
-## Step 2 — Add one real screenshot and one example output (10–20 minutes)
+## Step 2 — Review the included screenshot and add examples (10–20 minutes)
 
-Judges like seeing the app and its results without running it.
+A real screenshot is already included at `docs/screenshots/video-studio.png`, and the README displays it. It shows the Video tab, grouped reference uploads, settings, and generated results. You can replace it with a newer screenshot if the interface has changed.
 
-1. While the app is open, take a screenshot of the main screen with a finished result. Save it as:
-
-```text
-docs/screenshots/main.png
-```
-
-2. Generate 1–3 good, SFW examples (image or video). Save small versions in:
-
-```text
-examples/
-```
-
-Use clear names like `qwen-portrait.png`, `krea-product.png`, or `minimax-cafe.mp4`.
-
-3. Open `README.md` and replace the illustration line with your real screenshot:
-
-```markdown
-![Comfy Studio](docs/screenshots/main.png)
-```
-
-4. Add a short `examples/README.md` table listing what each example is and which workflow made it.
-
-Keep files small. GitHub’s web uploader has a 25 MB limit per file, and the repo is easier to clone when it stays light. For video, a 5–10 second compressed clip is enough, or just link the demo video.
+If you add generated example images or videos, keep them SFW and reasonably small. Put them in `examples/`, then add a short table to `examples/README.md` listing each output, the workflow, and the prompt summary. For video, a short compressed clip is enough; otherwise link the full demo video instead of committing a large file.
 
 ---
 
@@ -77,7 +55,7 @@ The short version with **GitHub Desktop**:
 1. Install GitHub Desktop: <https://desktop.github.com/>
 2. Sign in with your GitHub account.
 3. **File → Add Local Repository**.
-4. Choose this folder (`comfy-studio-github`).
+4. Choose this folder (`comfy-studio`).
 5. If it says it is not a Git repository, click **create a repository** and accept the defaults.
 6. Write the summary `Initial commit` and click **Commit to main**.
 7. Click **Publish repository**.

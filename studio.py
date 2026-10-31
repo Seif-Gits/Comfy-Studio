@@ -31,7 +31,7 @@ OUT = {"SaveImage": "image", "PreviewImage": "image", "SaveAnimatedWEBP": "image
 TEXT_FIELDS = ("text", "prompt", "value", "string")
 SEEDS = ("seed", "noise_seed")
 CAST = {"int": lambda x: int(float(x)), "float": float, "bool": lambda x: str(x).lower() in ("true", "1", "on")}
-OI, JOBS, S, PROC, PB = {}, {}, None, None, {}
+OI, JOBS, S, PROC, PB, API = {}, {}, None, None, {}, {}
 
 
 def link(v): return isinstance(v, list) and len(v) == 2 and isinstance(v[0], str)
@@ -88,7 +88,7 @@ async def info(cls):
     if cls not in OI:
         try:
             async with S.get(f"{COMFY}/object_info/{cls}") as r:
-                e = (await r.json()).get(cls, {}); OI[cls] = e.get("input", {}); PB[cls] = e.get("price_badge")
+                e = (await r.json()).get(cls, {}); OI[cls] = e.get("input", {}); PB[cls] = e.get("price_badge"); API[cls] = bool(e.get("api_node"))
         except (aiohttp.ClientError, ValueError):
             return {}
     return OI[cls]
@@ -286,11 +286,14 @@ def usd_range(r):
         if num(u): return (u, u)
 
 
-async def node_price(nid, n, fixed):
+async def node_price(nid, n, fixed, marked=()):
     """(low, high) credits for one API node, or None when it has no price / it can't be worked out."""
     if nid in fixed: return (fixed[nid], fixed[nid])
     await info(n["class_type"]); pb = PB.get(n["class_type"])
-    if not pb: return None
+    if not pb:
+        if (nid in marked or API.get(n["class_type"])) and n["class_type"] not in WARNED:
+            WARNED.add(n["class_type"]); print(f"[credits] ComfyUI gave no price formula for {n['class_type']}. Update ComfyUI, or write the price by hand: (Credits 351.6)")
+        return None
     try:
         dep = pb.get("depends_on") or {}
         inputs = {k: {"connected": link(v)} for k, v in n["inputs"].items()}
@@ -326,9 +329,30 @@ async def price_of(wid, vals, present):
         elif i["kind"] in ("image", "audio", "video") and k not in present: drop.append(i["node"])
     g = await prune(g, drop); lo = hi = 0.0; found = False
     for nid in live(g):
-        r = await node_price(nid, g[nid], m["credits"])
+        r = await node_price(nid, g[nid], m["credits"], m["priced"])
         if r: lo += r[0]; hi += r[1]; found = True
     return [round(lo, 1), round(hi, 1)] if found else None
+
+
+def spec_of(oi, inputs, f):
+    """ComfyUI's definition of one field, also for sub-fields of dynamic combos such as 'format.bit_depth'."""
+    d = (oi.get("required") or {}).get(f) or (oi.get("optional") or {}).get(f)
+    if d: return d
+    if "." in f:
+        parent, _, child = f.partition(".")
+        ps = (oi.get("required") or {}).get(parent) or (oi.get("optional") or {}).get(parent) or []
+        opts = ps[1].get("options") if len(ps) > 1 and isinstance(ps[1], dict) else None
+        for o in opts if isinstance(opts, list) else []:
+            if isinstance(o, dict) and o.get("key") == inputs.get(parent):
+                sub = o.get("inputs") or {}
+                return (sub.get("required") or {}).get(child) or (sub.get("optional") or {}).get(child)
+
+
+def combo_opts(t, x):
+    """The choices of a combo field: a plain list, 'COMBO' + options, or a dynamic combo with {key, inputs} options."""
+    if isinstance(t, list): return t
+    o = x.get("options")
+    if isinstance(o, list) and o: return [(e.get("key", e.get("value", e.get("name"))) if isinstance(e, dict) else e) for e in o]
 
 
 async def fields(n, c, label, o, setup=False):
@@ -343,10 +367,12 @@ async def fields(n, c, label, o, setup=False):
     tf = None if setup else next((f for f in TEXT_FIELDS if isinstance(lits.get(f), str)), None)
     if tf: out.append({"kind": "text", "field": tf, "label": base, "named": named, "value": lits.pop(tf)})
     for f, v in lits.items():
-        sp = (oi.get("required") or {}).get(f) or (oi.get("optional") or {}).get(f) or []
+        sp = spec_of(oi, n["inputs"], f) or []
         t = sp[0] if sp else None
         x = sp[1] if len(sp) > 1 and isinstance(sp[1], dict) else {}
-        if t == "COMBO": t = x.get("options")
+        opts = combo_opts(t, x)
+        if opts: t = opts
+        if isinstance(t, list) and not t: t = None
         ty = ("select" if isinstance(t, list) else "bool" if t == "BOOLEAN" or isinstance(v, bool) else
               "int" if t == "INT" or (t is None and isinstance(v, int)) else
               "float" if t == "FLOAT" or isinstance(v, float) else "text")
@@ -364,14 +390,15 @@ async def fields(n, c, label, o, setup=False):
 
 
 async def parse(wid, g):
-    ins, outs, setup, warns, credits = [], [], [], [], {}
+    ins, outs, setup, warns, credits, priced = [], [], [], [], {}, set()
     for nid, n in g.items():
         label, marks, rules = tags(n); c = n["class_type"]
         names = [f for f, v in n["inputs"].items() if not link(v) and isinstance(v, (str, int, float))]
         mine = []
         for o in marks:
             kind = o["kind"]
-            if kind == "credits":  # (Credits 351.6): a fixed price for this node, used when it can't be worked out automatically
+            if kind == "credits":  # (Credits) = a closed-source node, priced live; (Credits 351.6) = a fixed price instead
+                priced.add(nid)
                 if o.get("credits") is not None: credits[nid] = o["credits"]
                 continue
             if kind == "output":
@@ -393,10 +420,13 @@ async def parse(wid, g):
     for i in ins:  # a media input is "required" unless marked optional or the graph still runs without it
         if i["kind"] in ("image", "audio", "video"):
             i["required"] = not (i["optional"] or has_out(await prune(g, [i["node"]])))
+    classes = {n["class_type"] for n in g.values()}
+    for c in classes: await info(c)
+    paid = bool(priced) or any(API.get(c) or PB.get(c) for c in classes)  # API (closed-source) nodes use credits
     for lst in (ins, setup):  # (1.Input) (2.Input): numbered ones first, the rest keep their order
         lst.sort(key=lambda e: (e["order"] is None, e["order"] or 0))
     return {"id": wid, "name": wid.replace("_", " "), "type": outs[0]["kind"] if outs else None,
-            "inputs": ins, "outputs": outs, "warns": warns, "setup": setup, "credits": credits}
+            "inputs": ins, "outputs": outs, "warns": warns, "setup": setup, "credits": credits, "paid": paid, "priced": sorted(priced)}
 
 
 def err_text(j):

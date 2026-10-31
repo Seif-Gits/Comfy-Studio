@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+- Recognize supported ComfyUI dynamic-combo options and selected-variant sub-fields.
+- Allow exact numeric entry by clicking a slider value.
+- Detect API/partner nodes from ComfyUI metadata, show a paid-workflow crown, and explain unavailable price formulas.
+- Add GPU-free tests for parser, graph pruning, dynamic combos, and credit formulas.
+
+
 ## 1.0.0 — 2026-10-30
 
 First public release, prepared for the **Open Source Higgsfield** challenge.
