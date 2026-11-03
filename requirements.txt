@@ -1,2 +1,3 @@
-# Comfy Studio only needs aiohttp. ComfyUI's portable Python already includes it.
-aiohttp>=3.9,<4
+# Comfy Studio needs only aiohttp, and ComfyUI already installs it.
+# Run Studio with ComfyUI's own Python and you do not need to install anything.
+aiohttp>=3.9

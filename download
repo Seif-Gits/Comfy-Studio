@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+ENV/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Comfy Studio runtime data (keep user workflows and setup choices local)
+/workflows/
+/setup/
+
+# ComfyUI runtime folders if this repo is cloned inside a ComfyUI tree
+output/
+outputs/
+input/
+models/
+temp/
+user/
+
+# Logs and caches
+*.log
+.cache/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Local demo recordings (upload the demo to YouTube/Vimeo instead)
+demo-recording.*
+recording-*.mp4
+recording-*.mov

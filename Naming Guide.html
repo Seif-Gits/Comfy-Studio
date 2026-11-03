@@ -27,8 +27,8 @@ ul{margin:8px 0 8px 20px;color:var(--mu)}li{margin:5px 0}
 <h2>1. The marks</h2>
 <table><tr><th>Mark</th><th>Put it on</th><th>What the user gets</th></tr>
 <tr><td><code>(Input)</code></td><td>Any node</td><td>Every simple field of the node becomes a setting next to the model picker. <b>Load Image / Audio / Video</b> nodes become upload boxes, and the first text field becomes the prompt box.</td></tr>
-<tr><td><code>(Switch)</code></td><td>A node with a true/false field</td><td>A toggle switch. It starts <b>off</b>, and off means “whatever the workflow says”. On sends the opposite.</td></tr>
-<tr><td><code>(Slider min:0/max:10)</code></td><td>A node with a number field</td><td>A slider with the number shown live. Clicking the number lets the user type an exact value.</td></tr>
+<tr><td><code>(Input Switch)</code></td><td>A node with a true/false field</td><td>A toggle switch. It starts <b>off</b>, and off means “whatever the workflow says”. On sends the opposite. (<code>(Switch)</code> on its own works too.)</td></tr>
+<tr><td><code>(Input Slider min=0/max=10)</code></td><td>A node with a number field</td><td>A slider with the number shown live. Clicking the number lets the user type an exact value. (<code>(Slider)</code> on its own works too.)</td></tr>
 <tr><td><code>(Setup)</code></td><td>Model, VAE, CLIP and LoRA loaders</td><td>Not shown while generating. It appears under <b>Manager → Setup</b> so each person can pick the model files on their own computer. A missing or empty file is highlighted in red.</td></tr>
 <tr><td><code>(Output)</code></td><td>The Save node</td><td>Marks the result. Its type (image, video or audio) decides which tab the workflow appears in.</td></tr>
 <tr><td><code>(Credits)</code></td><td>A closed-source (API) node</td><td>Marks the workflow as a paid model. It gets a <b>crown</b> in the model list, and the Generate button shows the credits it will charge for the current settings, updated live as the user changes them. Write a number, <code>(Credits 351.6)</code>, only if you want to fix the price by hand.</td></tr></table>
@@ -40,9 +40,14 @@ ul{margin:8px 0 8px 20px;color:var(--mu)}li{margin:5px 0}
 <tr><td><code>[1,3]</code></td><td>Show only the 1st and 3rd field of the node. Fields are counted from the top, skipping the ones that have a wire connected. The settings appear in the order you list them.</td></tr>
 <tr><td><code>optional</code></td><td>The upload may stay empty. When it is empty, that node is switched off.</td></tr>
 <tr><td><code>[image 2/10]</code></td><td>A group of uploads that share one box. This node is slot 2 of 10. The first picture the user adds goes to slot 1, the next to slot 2, and so on, in the order the user drags them into. Works with <code>image</code>, <code>audio</code> and <code>video</code>.</td></tr>
-<tr><td><code>min:0/max:10 step:2</code></td><td>Limits for number fields. Works in <code>(Slider)</code> and in <code>(Input)</code>, where typed numbers are kept inside the limits. Any of the three can be left out.</td></tr>
+<tr><td><code>min=256/max=2048</code></td><td>The lowest and highest number. Typed numbers are pulled back inside the limits. You can write <code>min:256</code> too.</td></tr>
+<tr><td><code>stp=32</code></td><td>Numbers move in steps of 32, counted from the minimum. A typed number snaps to the closest step, so 1000 becomes 992 when the minimum is 256.</td></tr>
+<tr><td><code>dec=0</code> or <code>dec=2</code></td><td>How many decimals the number accepts: <code>dec=0</code> means whole numbers, <code>dec=2</code> means two decimals, like 1.12. Whole-number fields are always <code>dec=0</code>.</td></tr>
+<tr><td><code>Slider</code> / <code>Switch</code></td><td>The kind of control, written as a plain word inside <code>(Input …)</code>.</td></tr>
 <tr><td><code>(2.Input)</code></td><td>A number before the keyword sets the order. Numbered settings come first, in number order, then the rest in their usual order. The model picker always stays first.</td></tr>
 <tr><td><code>{Custom ratio} on [1]</code></td><td>A <b>show rule</b>. It is written <b>outside</b> the parentheses. Field 1 of this node only appears while the switch named “Custom ratio” is on. Use <code>off</code> to show it while the switch is off. Without <code>[ ]</code> the rule covers every field the node shows. A field that is hidden isn’t sent.</td></tr></table>
+
+<div class="box"><p><b>Putting it together.</b> After the keyword (<code>Input</code>, <code>1.Input</code>, <code>2.Input</code> …) the rest can be in any order. <code>(Input Slider [1] {Height} min=256/max=2048/stp=32/dec=0)</code> and <code>(Input {Height} max=2048/stp=32/min=256/dec=0 Slider [1])</code> give the same result: a slider called “Height” on the node’s first field, from 256 to 2048, in steps of 32, with no decimals.</p></div>
 
 <h2>3. Examples to copy</h2>
 <table><tr><th>Node title</th><th>Result</th></tr>
@@ -53,8 +58,10 @@ ul{margin:8px 0 8px 20px;color:var(--mu)}li{margin:5px 0}
 <tr><td><code>Resolution Selector (Input [1,2])</code></td><td>Two settings: aspect ratio and megapixels. The third field is left out.</td></tr>
 <tr><td><code>If/Else Switch (Switch {Custom ratio} [1])</code></td><td>A toggle called “Custom ratio”.</td></tr>
 <tr><td><code>Resolution Selector (Input [1,2]) {Custom ratio} on [1]</code></td><td>Aspect ratio only shows while “Custom ratio” is on. Megapixels is always there.</td></tr>
-<tr><td><code>KSampler (Slider {Steps} [2] min:1/max:50)</code></td><td>A “Steps” slider from 1 to 50. Field 2 of a KSampler is steps.</td></tr>
-<tr><td><code>Some Node (2.Slider {Seconds} [5] min:3/max:15)</code></td><td>A “Seconds” slider, shown second.</td></tr>
+<tr><td><code>Empty Latent (Input Slider [1] {Height} min=256/max=2048/stp=32/dec=0)</code></td><td>A “Height” slider from 256 to 2048 in steps of 32, whole numbers only.</td></tr>
+<tr><td><code>KSampler (Input Slider {Steps} [2] min=1/max=50)</code></td><td>A “Steps” slider from 1 to 50. Field 2 of a KSampler is steps.</td></tr>
+<tr><td><code>KSampler (Input {Guidance} [3] min=1/max=10/dec=1)</code></td><td>A “Guidance” number box, 1 to 10, with one decimal.</td></tr>
+<tr><td><code>Some Node (2.Input Slider {Seconds} [5] min=3/max=15)</code></td><td>A “Seconds” slider, shown second.</td></tr>
 <tr><td><code>Load Diffusion Model (Setup {Main model} [1])</code></td><td>A “Main model” drop-down in Manager → Setup.</td></tr>
 <tr><td><code>Save Video (Output)</code></td><td>The result. The workflow appears under Video.</td></tr>
 <tr><td><code>Seedance Reference to Video (Credits)</code></td><td>A crown in the model list, and the live price (for example “~351.6 credits”) on the Generate button.</td></tr></table>

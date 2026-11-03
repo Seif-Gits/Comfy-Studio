@@ -1,314 +1,129 @@
-![Comfy Studio banner](assets/banner.svg)
-
 # Comfy Studio
 
-**A Higgsfield-style creative studio for your own ComfyUI workflows.**
+**Turn any ComfyUI workflow into a simple app. Pick Image, Video or Audio, choose a model, type a prompt, drop in files, press Generate.**
 
-Comfy Studio turns ComfyUI API workflows into a clean, prompt-first app: pick a model, type an idea, add reference images or video, adjust the settings that matter, and press **Generate**. No node graph, no terminal commands for the person using it.
+A local, open-source, [Higgsfield](https://higgsfield.ai)-style interface that runs on top of your own ComfyUI. You never see a node graph. You name a few nodes in ComfyUI, export the workflow, drop the file into the **Manager**, and the interface builds itself from it.
 
-Built for the **Open Source Higgsfield** challenge with **#OpenSourceHiggsfield**.
+Built for the [#OpenSourceHiggsfield](https://comfy.org/open-source-higgsfield/) challenge. MIT licensed.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-F2FF59.svg)](LICENSE)
-![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB.svg)
-![ComfyUI](https://img.shields.io/badge/ComfyUI-local%20API-F2FF59.svg)
-![No build step](https://img.shields.io/badge/build-none-brightgreen.svg)
+![Comfy Studio, video tab with a reference-to-video workflow](docs/screenshots/video-studio.png)
 
-> **Not affiliated with Comfy Org or Higgsfield.** ComfyUI is a trademark of Comfy Org. This is an independent community project.
+## The idea
 
----
+A ComfyUI API workflow already knows what it needs: an image here, a prompt there, a duration, a resolution. Comfy Studio reads **marks you type into node titles** and turns them into the right controls:
 
-## What it does
+| In ComfyUI you name a node | The user sees |
+|---|---|
+| `CLIP Text Encode (Input)` | the prompt box |
+| `Load Image (Input optional {Start frame})` | an optional upload box called "Start frame" |
+| `Load Image (Input optional [image 1/10])` … `[image 10/10]` | one box that grows as pictures are added, with drag-to-reorder |
+| `Resolution Selector (Input [1,2])` | aspect ratio and megapixels as drop-downs and number fields |
+| `If/Else Switch (Switch {Custom ratio} [1])` | a toggle switch |
+| `Some Node (Input Slider {Seconds} [5] min=3/max=15/stp=1/dec=0)` | a slider with limits, steps and decimals; click the number to type a value |
+| `Load Diffusion Model (Setup {Main model} [1])` | a model picker in the Manager, for each person's own files |
+| `Save Video (Output)` | the result, and which tab (Image, Video, Audio) the workflow lives in |
+| `Seedance Reference to Video (Credits)` | a crown, and the live credit price on the Generate button |
 
-Comfy Studio is a small local web app that sits in front of ComfyUI:
+The full list is in [docs/NAMING_GUIDE.md](docs/NAMING_GUIDE.md). It is also available inside the app under **Manager → Naming guide**.
 
-- **One prompt box** for image, video, and audio workflows.
-- **Model switcher** that reads the API workflows in `workflows/`.
-- **Upload slots** for reference images, videos, and audio, including grouped multi-image inputs such as 1/10 … 10/10.
-- **Smart controls** generated from node titles: text fields, number fields, dropdowns (including supported dynamic-combo fields), toggles, sliders, and fields that only appear when a switch is on. Slider values can also be entered precisely by clicking the displayed number.
-- **Per-workflow Setup** for model files, so users choose a checkpoint once and the app remembers it.
-- **Gallery** with previews, download, and “copy inputs to current generation”.
-- **API-node detection and live credit estimates.** Comfy Studio identifies ComfyUI API/partner nodes, marks paid workflows with a crown, and calculates prices from the node price formula when ComfyUI provides one. A `(Credits)` mark can explicitly identify a paid node; `(Credits 351.6)` sets a fixed fallback price.
-- **Workflow Manager** to add, replace, rename, and delete workflows without editing code.
-- **One-click launch** on Windows: starts ComfyUI if needed and opens the studio in your browser.
+## Features
 
-The backend is a **single Python file** (`studio.py`). The frontend is a **single HTML file** (`index.html`). There is no npm, no build step, and no database.
+- **Image / Video / Audio tabs.** The models in each tab are simply the workflows you have loaded.
+- **One workflow, several modes.** An empty optional upload switches its node off and cuts it out of the graph. The same workflow can be text-to-video with only a prompt, or image-to-video once a picture is added. Studio works out by itself which uploads are required.
+- **Multi-reference uploads.** Up to N images, audio files or videos share one box. Drag thumbnails to change the order, or drop a file from your file explorer onto a thumbnail to replace it.
+- **Settings that fit the field.** Fixed options become drop-downs with the real choices from ComfyUI, numbers can be typed right in the button, true/false fields become switches, and `min= max= stp= dec=` set limits, steps and decimals, and typed numbers snap to the closest step.
+- **Show and hide rules.** `{Custom ratio} on [1]` shows a setting only while a switch is on, with a fade.
+- **Setup for every machine.** Model files differ from computer to computer. Fields marked `(Setup)` get their own panel with a drop-down of what is installed, and a missing file is highlighted in red before you can generate.
+- **Closed-source models, with prices.** Partner (API) nodes carry a price formula in ComfyUI. Studio reads it and shows the credits for the exact settings and uploads you chose, updated live. These models get a crown.
+- **Open weights work the same way.** Nothing in Studio depends on a partner node.
+- **Results you can reuse.** Click any result to see everything that went into it, and copy the prompt or all of the inputs back into the current generation.
+- **Manager.** Add workflows by dragging `.json` files in, replace, rename or delete them, move the sidebar to any edge, and remove all generations.
+- **Comfortable to use.** The prompt box resizes from its top and sides and never shrinks below what its inputs need. There are smooth fades throughout, and reduced-motion settings are respected.
+- **One click to start.** A launcher starts ComfyUI the same way your own `run_*.bat` does (without opening its browser tab) and then opens Studio.
 
-![Comfy Studio running a MiniMax H3 reference-to-video workflow](docs/screenshots/video-studio.png)
+## Quick start (Windows portable ComfyUI)
 
-*The screenshot shows the video composer, multi-reference uploads, model controls, and generated results. The original illustration remains available at [`assets/ui-preview.svg`](assets/ui-preview.svg).*
-
----
-
-## Quick start
-
-### The short version (Windows, portable ComfyUI)
-
-1. Put this folder inside your ComfyUI folder, next to `main.py`:
-
-```text
-ComfyUI_windows_portable\
-├── ComfyUI\
-│   ├── main.py
-│   ├── comfy-studio\        <-- this repo
-│   └── ...
-└── python_embeded\
-    └── python.exe
-```
-
+1. Copy this folder into your ComfyUI folder, the one that contains `main.py`:
+   `ComfyUI_windows_portable\ComfyUI\comfy-studio`
 2. Double-click **`Start Comfy Studio.bat`**.
+3. In the browser tab that opens, click **Manager** and drag in one of your own workflows exported with **Workflow → Export (API)**. Open **⚠ Setup** to pick your own model files.
+4. Choose a tab, pick a model, write a prompt, press **Generate**.
 
-That’s it. The launcher finds ComfyUI’s own Python, starts ComfyUI in the terminal if it is not already running, and opens `http://127.0.0.1:7860`.
+Optional: run **`Create Desktop Shortcut.bat`** once to get a "Comfy Studio" icon on your desktop.
 
-### If ComfyUI is already running
+**Already have ComfyUI running?** Use `Start Studio Only.bat`.
+**Linux or macOS:** run `./start-comfy-studio.sh`, or start it by hand with ComfyUI's Python:
 
-Use **`Start Studio Only.bat`** instead. It connects to the ComfyUI you started yourself and does not launch a second copy.
-
-### Manual start (any OS)
-
-```bash
-python -m pip install -r requirements.txt
+```
 python studio.py
 ```
 
-Then open <http://127.0.0.1:7860>.
+### What you need
 
-If this folder is **not** inside your ComfyUI folder, point Studio at ComfyUI:
+- ComfyUI (the portable build, or a normal install with `main.py`). Studio uses ComfyUI's own Python and needs nothing else, because `aiohttp` is already part of ComfyUI.
+- A current browser (Chrome, Edge, Firefox or Safari).
+- Workflows exported with **Workflow → Export (API)**.
 
-**Windows PowerShell:**
+## Making a workflow into an app
 
-```powershell
-$env:COMFY_DIR = "C:\path\to\ComfyUI"
-$env:COMFY_URL = "http://127.0.0.1:8188"
-python studio.py
-```
+1. In ComfyUI, double-click the title of the nodes you want people to control and add a mark, as in the table above.
+2. Name the Save node `(Output)`. Without it the workflow is rejected.
+3. Export with **Workflow → Export (API)**.
+4. Drag the file into **Manager**. A field number that does not exist, or a model file that is missing, is shown in red.
 
-**Linux / macOS:**
-
-```bash
-export COMFY_DIR="$HOME/ComfyUI"
-export COMFY_URL="http://127.0.0.1:8188"
-python3 -m pip install -r requirements.txt
-python3 studio.py
-```
-
-Or use the included launcher:
-
-```bash
-chmod +x start-comfy-studio.sh
-./start-comfy-studio.sh
-```
-
-### Requirements
-
-- **ComfyUI** installed and able to run (Desktop, portable, or manual install).
-- **Python 3.10+**. The portable build already includes a suitable Python.
-- **`aiohttp`**. ComfyUI’s portable Python already has it; otherwise `pip install -r requirements.txt`.
-- A GPU and enough VRAM for the model you choose.
-
-Comfy Studio itself does **not** download models. It uses the models and custom nodes already installed in ComfyUI.
-
----
-
-## Included workflows
-
-The repo ships with six local workflows:
-
-| Workflow | Output | What it demonstrates |
-| --- | --- | --- |
-| `Qwen_2.1.json` | Image | Qwen Image 2.1 text-to-image with up to 10 reference images and a resolution selector |
-| `Qwen_2.1_5.json` | Image | Alternate control layout for the same model |
-| `Qwen_2.1_6.json` | Image | Alternate layout with a custom-ratio switch |
-| `Krea-2.json` | Image | Krea 2 text-to-image with two LoRAs |
-| `Krea-2_T2I_again.json` | Image | Alternate Krea 2 layout |
-| `Minimax_H3_Ref2Va.json` | Video + audio | MiniMax H3 reference-to-video with up to 10 images, 3 videos, 3 audio clips, and duration control |
-
-There is also an **optional partner workflow** at [`examples/partner-workflows/GPT_2.5.json`](examples/partner-workflows/GPT_2.5.json). It uses ComfyUI’s OpenAI GPT Image 2.5 API node and is **not** part of the open-weights demo. Drag it into the Manager if you want to try it. It is intentionally kept out of the default `workflows/` folder so the main submission remains open-weights only.
-
-### Model files referenced by the included workflows
-
-See [`docs/MODELS.md`](docs/MODELS.md) for the exact filenames and folder locations. At a glance, the local workflows reference:
-
-- Qwen Image 2.1: diffusion model, Qwen3-VL text encoder, Qwen Image 2.1 VAE.
-- Krea 2: Krea 2 diffusion model, Qwen3-VL text encoder, Qwen Image VAE, Krea 2 turbo + realism LoRAs.
-- MiniMax H3: MiniMax H3 reference-to-video diffusion model, video VAE, audio VAE, Qwen3-VL GGUF text encoder, and the LightX2V turbo LoRA.
-
-Missing custom nodes? Start ComfyUI, open **Manager → Install Missing Custom Nodes**, install what the workflow asks for, and restart ComfyUI. The main packs used by the included workflows are [ComfyUI-GGUF](https://github.com/city96/ComfyUI-GGUF), [ComfyUI-VideoHelperSuite](https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite), [rgthree-comfy](https://github.com/rgthree/rgthree-comfy), and [ComfyMath](https://github.com/evanspearman/ComfyMath). `ResolutionSelector`, `SaveImageAdvanced`, and the Qwen/MiniMax nodes are part of recent ComfyUI builds.
-
----
+Re-uploading a file with the same name replaces the old version and keeps each person's Setup choices.
 
 ## How it works
 
-```mermaid
-flowchart LR
-    A[Browser UI<br/>index.html] -->|prompt, files, settings| B[studio.py<br/>aiohttp server]
-    B -->|/upload/image<br/>/prompt| C[ComfyUI<br/>127.0.0.1:8188]
-    C -->|history + outputs| B
-    B -->|preview / download| A
-    D[workflows/*.json] --> B
-    E[setup/*.json] --> B
+```
+Browser (index.html) ◄──► studio.py (aiohttp, port 7860) ◄──► ComfyUI (port 8188)
+   builds the controls          reads the marks                /object_info  field types, options, prices
+   from the parsed workflow     prunes empty inputs            /upload/image inputs
+   shows results and history    sends the graph                /prompt  /history  /view
 ```
 
-1. **ComfyUI** runs your workflow with its own models.
-2. **`studio.py`** reads API-format workflow JSON files, exposes their marked inputs as an HTTP API, uploads files to ComfyUI, queues prompts, and polls for results.
-3. **`index.html`** draws the studio, keeps your local history in `localStorage`, and talks only to `studio.py`.
-4. **`workflows/`** holds the workflows. **`setup/`** remembers each workflow’s model choices (that folder is git-ignored).
+- `studio.py` reads each workflow, finds the marks in the node titles, and asks ComfyUI's `/object_info` for field types, dropdown options and price formulas.
+- When you press Generate it uploads your files, sets the values, and switches off every node whose upload is empty, together with anything that cannot run without it. It then queues the graph on `/prompt`.
+- Prices come from the `price_badge` formula ComfyUI attaches to partner nodes. `studio.py` contains a small evaluator for the subset of the JSONata language those formulas use, and re-runs it whenever an input changes.
+- There is no database. Workflows live in `workflows/`, each person's Setup choices in `setup/`, and the generation history in the browser.
 
-### Turning any workflow into an app
+### Settings
 
-Comfy Studio reads **node titles**. Add markers to a node title in ComfyUI, export the workflow with **Workflow → Export (API)**, and upload the JSON in the Manager.
+Environment variables, all optional:
 
-```text
-Prompt (Input)
-Load Image (Input optional [Image 1/10])
-Resolution Selector (Input [1,2])
-Duration (Input {Seconds})
-Steps (Slider {Steps} [2] min:1/max:50 step:1)
-Custom ratio (Switch {Custom ratio} [1])
-Model (Setup)
-Save Image (Output)
+| Variable | Default | Meaning |
+|---|---|---|
+| `COMFY_URL` | `http://127.0.0.1:8188` | where ComfyUI listens |
+| `COMFY_DIR` | the folder above this one | the folder with ComfyUI's `main.py` |
+| `COMFY_ARGS` | none | extra arguments when Studio starts ComfyUI |
+| `COMFY_START` | `1` | `0` = do not start ComfyUI |
+| `PORT` | `7860` | the port Studio listens on |
+| `COMFY_CREDITS_PER_USD` | `211` | credits per US dollar for the price display |
+
+## Project layout
+
+```
+studio.py            the server: mark parser, graph pruning, price formulas, ComfyUI client
+index.html           the whole interface (no build step, no dependencies)
+Naming Guide.html    the guide that opens inside the app
+docs/                naming guide (Markdown) and screenshots
+workflows/           your ComfyUI API workflows
+tests/               logic tests (python -m unittest discover -s tests -v)
+Start *.bat, *.sh    launchers
 ```
 
-That is enough to get a prompt box, a 10-image reference strip, a resolution control, a duration field, a slider, a switch, a Setup entry, and an output card.
+## Known limits
 
-Read the full marker reference in:
+- Progress is shown by polling ComfyUI's history. There is no progress bar and no cancel button yet.
+- Fields that hold several values in one widget, such as the LoRA rows of rgthree's Power Lora Loader, cannot be exposed.
+- The credit price depends on the formula your ComfyUI version provides. If a formula is missing or uses something the evaluator does not know, the button says "uses credits", and the terminal explains why. `(Credits 351.6)` sets a fixed price instead.
+- The launcher expects a ComfyUI folder with `main.py`. The installer-based ComfyUI Desktop app is not started automatically, but Studio works with it when you run **Start Studio Only** and set `COMFY_URL`.
+- The interface is built for desktop screens.
 
-- [`docs/WORKFLOW_GUIDE.md`](docs/WORKFLOW_GUIDE.md) — complete syntax and examples.
-- [`Naming Guide.html`](Naming%20Guide.html) — the same guide inside the app, linked from **Manager → Naming guide**.
+## Contributing
 
----
-
-## Configuration
-
-| Variable | Default | What it does |
-| --- | --- | --- |
-| `COMFY_URL` | `http://127.0.0.1:8188` | Where ComfyUI’s API is listening |
-| `COMFY_DIR` | parent folder of `studio.py` | The folder that contains ComfyUI’s `main.py` |
-| `COMFY_START` | `1` | `1` = start ComfyUI if it is not running; `0` = never start it |
-| `COMFY_ARGS` | empty | Extra arguments passed to ComfyUI, e.g. `--lowvram` |
-| `PORT` | `7860` | Port for the Studio web app |
-| `COMFY_CREDITS_PER_USD` | `211` | Conversion used by the credit estimate |
-
-Examples:
-
-```powershell
-# Start Studio on a different port and pass --lowvram to ComfyUI
-$env:PORT = "7861"
-$env:COMFY_ARGS = "--lowvram"
-python studio.py
-```
-
-```bash
-# Connect to a ComfyUI running on another machine
-COMFY_URL="http://192.168.1.50:8188" COMFY_START=0 python3 studio.py
-```
-
----
-
-## Tests
-
-The repository includes GPU-free unit tests for marker parsing, field selection, dynamic-combo metadata, optional-input graph pruning, and credit-formula evaluation. Run them with:
-
-```bash
-python -m unittest discover -s tests -v
-```
-
-## Project structure
-
-```text
-comfy-studio/
-├── studio.py                  # aiohttp backend: workflows -> API -> ComfyUI
-├── index.html                 # the whole frontend (HTML + CSS + JS)
-├── workflows/                 # API-format ComfyUI workflows
-├── setup/                     # per-workflow Setup choices (git-ignored)
-├── examples/                  # example outputs, prompts, optional partner workflow
-├── docs/                      # guides, model list, demo script, submission checklist
-├── assets/                    # banner and UI illustration
-├── scripts/validate_workflows.py
-├── tests/                      # GPU-free logic tests
-├── Naming Guide.html          # in-app workflow naming reference
-├── Start Comfy Studio.bat     # Windows: start ComfyUI if needed + Studio
-├── Start Studio Only.bat      # Windows: Studio only
-├── start-comfy-studio.sh      # Linux / macOS launcher
-├── Create Desktop Shortcut.bat
-├── icon.ico
-├── requirements.txt
-├── LICENSE
-└── README.md
-```
-
----
-
-## Adding your own workflows
-
-1. Build and test the workflow in ComfyUI.
-2. Rename the important nodes using the markers in [`docs/WORKFLOW_GUIDE.md`](docs/WORKFLOW_GUIDE.md). At minimum, mark one output node `(Output)`.
-3. Choose **Workflow → Export (API)**.
-4. Open Comfy Studio → **Manager** → **Add workflow files (.json)**, or drag the JSON anywhere onto the page.
-5. If the workflow has `(Setup)` nodes, choose the model files in **Manager → Setup**.
-6. Test with a small prompt. If an input is optional, leave it empty and Studio disables that branch automatically.
-
-Uploading the same filename replaces the workflow but keeps its saved Setup choices.
-
----
-
-## Troubleshooting
-
-**“ComfyUI is not reachable at …”**
-Start ComfyUI first, or use `Start Comfy Studio.bat` (not `Start Studio Only.bat`). Check that `COMFY_URL` matches ComfyUI’s port.
-
-**“No node titled ‘(Output)’”**
-Rename your save/preview node, for example `Save Image (Output)`, then export the API workflow again.
-
-**“Setup needed”**
-The workflow references a model file that is not installed. Open **Manager → Setup** and choose an available file, or install the missing model.
-
-**Manager shows “Naming guide” but the page is blank**
-Make sure `Naming Guide.html` is next to `studio.py`. It is included in this repo.
-
-**A workflow loads but the Generate button stays disabled**
-It is waiting for a required input. Add a required image/video/audio, or type a prompt. Optional inputs can stay empty.
-
-**Video generation is slow or runs out of VRAM**
-Try a smaller resolution, a shorter duration, or start ComfyUI with `COMFY_ARGS=--lowvram`. MiniMax H3 is a large model; a 24 GB GPU is a realistic starting point.
-
-More in [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md).
-
----
-
-## Open Source Higgsfield challenge
-
-This project was prepared for Comfy Org’s [Open Source Higgsfield](https://comfy.org/open-source-higgsfield/) challenge.
-
-**Challenge requirements covered by this repo:**
-
-- [x] Built with ComfyUI (local ComfyUI HTTP API).
-- [x] Works locally, with setup instructions another person can follow.
-- [x] Open-source license — [MIT](LICENSE).
-- [x] App code, workflow files, and setup documentation in one repo.
-- [x] Demo video script and recording checklist — [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
-- [x] SFW example prompts and no bundled likenesses or unlicensed IP.
-- [x] One submission, one person.
-
-**Before you submit, fill in the links in [`docs/SUBMISSION.md`](docs/SUBMISSION.md):**
-
-1. Your public GitHub repo URL.
-2. Your demo video URL (2 minutes max).
-
-Then submit through the official form: <https://form.typeform.com/to/V1dSQrkS>
-
-The submission window closes **October 30 at 9am PT**. Winners are announced **November 6**.
-
-For a step-by-step beginner guide, see [`docs/SUBMISSION_CHECKLIST.md`](docs/SUBMISSION_CHECKLIST.md).
-
----
-
-## Credits
-
-- **ComfyUI** by Comfy Org — the engine and API this project runs on.
-- **Qwen Image 2.1**, **Krea 2**, and **MiniMax H3** — the models used by the included example workflows. Check each model’s license before commercial use.
-- **rgthree-comfy**, **ComfyUI-VideoHelperSuite**, **ComfyUI-GGUF**, and **ComfyMath** — custom node packs used by the example workflows.
-- Icons and the interface are original to this project. The ComfyUI name and logo belong to Comfy Org.
+See [CONTRIBUTING.md](CONTRIBUTING.md). Run the tests with `python -m unittest discover -s tests -v`.
 
 ## License
 
-The Comfy Studio code is released under the [MIT License](LICENSE). Model weights, custom nodes, and third-party assets keep their own licenses. See [`docs/MODELS.md`](docs/MODELS.md) for details.
+[MIT](LICENSE). Model weights, custom nodes and third-party assets keep their own licenses.

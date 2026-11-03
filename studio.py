@@ -19,7 +19,7 @@ PORT = int(os.environ.get("PORT", 7860))
 COMFY_DIR = Path(os.environ.get("COMFY_DIR", ROOT.parent))  # the folder that contains ComfyUI's main.py
 MARK = re.compile(r"\s*\(\s*(?:(\d+)\s*\.\s*)?(input|output|setup|switch|slider|credits)\b([^()]*)\)\s*", re.I)
 RULE = re.compile(r"\{([^}]*)\}\s*(on|off)\b\s*(?:\[([\d,\s]*)\])?", re.I)
-# Marks:  (Slider min:0/max:10) (Input [1] min:0/max:10 step:2) (Credits 351.6)  (Input) (2.Input [1,3]) (Input optional {Reference photos} [image 2/10]) (Switch {Custom ratio} [1]) (Setup {Main model} [1]) (Output)
+# Marks:  (Input Slider [1] {Height} min=256/max=2048/stp=32/dec=0)  (Input Switch)  (Credits 351.6)  (Input)  - after the keyword, the order is free (2.Input [1,3]) (Input optional {Reference photos} [image 2/10]) (Switch {Custom ratio} [1]) (Setup {Main model} [1]) (Output)
 # Rule outside the marks:  {custom ratio} on [1]  = show field 1 only while the switch named "custom ratio" is on (or "off")
 # class_type -> (media kind, input field that holds the filename)
 MEDIA = {"LoadImage": ("image", "image"), "LoadImageMask": ("image", "image"),
@@ -42,11 +42,11 @@ def tags(n):
         rest = m.group(3); nm = re.search(r"\{([^}]*)\}", rest); rest = re.sub(r"\{[^}]*\}", "", rest)
         br = re.search(r"\[([^\]]*)\]", rest); br = br.group(1) if br else ""
         kind = m.group(2).lower()
-        o = {"kind": "input" if kind in ("switch", "slider") else kind, "slider": kind == "slider", "order": int(m.group(1)) if m.group(1) else None,
+        o = {"kind": "input" if kind in ("switch", "slider") else kind, "slider": kind == "slider" or bool(re.search(r"\bslider\b", re.sub(r"\{[^}]*\}", "", m.group(3)), re.I)), "order": int(m.group(1)) if m.group(1) else None,
              "optional": bool(re.search(r"\boptional\b", rest, re.I)),
              "name": (nm.group(1).strip() or None) if nm else None, "idx": [], "group": None}
-        for kk in ("min", "max", "step"):  # min:0/max:10 step:2
-            mm = re.search(rf"\b{kk}\s*:\s*(-?\d+(?:\.\d+)?)", rest, re.I); o[kk] = float(mm.group(1)) if mm else None
+        for kk, names in (("min", ("min",)), ("max", ("max",)), ("stp", ("stp", "step")), ("dec", ("dec",))):  # min=0/max=10/stp=2/dec=1  (":" works too)
+            o[kk] = next((float(mm.group(1)) for nm_ in names for mm in [re.search(rf"\b{nm_}\s*[:=]\s*(-?\d+(?:\.\d+)?)", rest, re.I)] if mm), None)
         if kind == "credits":
             mm = re.search(r"-?\d+(?:\.\d+)?", rest); o["credits"] = float(mm.group(0)) if mm else None
         g = re.fullmatch(r"\s*([A-Za-z_][\w ]*?)\s*(\d+)\s*/\s*(\d+)\s*", br)
@@ -309,6 +309,20 @@ async def node_price(nid, n, fixed, marked=()):
         return None
 
 
+def fix_num(e, n):
+    """Keep a number inside min/max, snap it to the closest stp (counted from min) and round it to dec decimals."""
+    lo, hi = e.get("min"), e.get("max")
+    if lo is not None: n = max(lo, n)
+    if hi is not None: n = min(hi, n)
+    if e.get("stp"):
+        base = lo if lo is not None else 0
+        n = base + math.floor((n - base) / e["stp"] + 0.5) * e["stp"]
+        if hi is not None and n > hi: n -= e["stp"]
+        if lo is not None and n < lo: n += e["stp"]
+    if e["type"] == "int": return int(round(n))
+    return round(n, e["dec"] if e.get("dec") is not None else 6)
+
+
 def live(g):
     seen, stack = set(), [i for i, n in g.items() if is_out(n)]
     while stack:
@@ -324,7 +338,8 @@ async def price_of(wid, vals, present):
     for i in m["inputs"]:
         k, ni = f'{i["node"]}.{i["field"]}', g[i["node"]]["inputs"]
         if i["kind"] == "param" and vals.get(k) not in (None, ""):
-            try: ni[i["field"]] = CAST.get(i["type"], str)(vals[k])
+            try:
+                val = CAST.get(i["type"], str)(vals[k]); ni[i["field"]] = fix_num(i, val) if i["type"] in ("int", "float") else val
             except (ValueError, TypeError): pass
         elif i["kind"] in ("image", "audio", "video") and k not in present: drop.append(i["node"])
     g = await prune(g, drop); lo = hi = 0.0; found = False
@@ -379,10 +394,12 @@ async def fields(n, c, label, o, setup=False):
         e = {"kind": "param", "field": f, "type": ty, "value": v, "seed": f in SEEDS and not setup,
              "label": base if len(lits) == 1 else f"{base}: {f.replace('_', ' ')}", "named": named,
              "options": t if isinstance(t, list) else None, "min": x.get("min"), "max": x.get("max")}
-        if ty in ("int", "float"):  # min:/max:/step: in the title beat ComfyUI's own limits
-            for kk in ("min", "max", "step"):
+        if ty in ("int", "float"):  # min / max / stp / dec in the title beat ComfyUI's own limits
+            for kk in ("min", "max"):
                 if o.get(kk) is not None: e[kk] = o[kk]
-                elif kk == "step": e[kk] = x.get("step")
+            e["step"] = x.get("step")  # ComfyUI's own step: the slider's default
+            if o.get("stp"): e["stp"] = o["stp"]  # snap typed numbers to the closest multiple (counted from min)
+            if o.get("dec") is not None: e["dec"] = 0 if ty == "int" else max(0, min(6, int(o["dec"])))
             e["slider"] = bool(o.get("slider"))
         if setup: e["error"] = chk(v, e["options"])
         out.append(e)
@@ -496,7 +513,8 @@ async def generate(req):
             if v is not None: n[i["field"]] = str(v)
         elif i["kind"] == "param":
             if i["seed"] and v in (None, "", "-1"): n[i["field"]] = random.randint(0, 2**50)
-            elif v not in (None, ""): n[i["field"]] = CAST.get(i["type"], str)(v)
+            elif v not in (None, ""):
+                val = CAST.get(i["type"], str)(v); n[i["field"]] = fix_num(i, val) if i["type"] in ("int", "float") else val
         elif v is None or not hasattr(v, "file"):
             drop.append(i)  # left plain -> node is disabled
         else:
