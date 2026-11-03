@@ -6,7 +6,7 @@ A local, open-source, [Higgsfield](https://higgsfield.ai)-style interface that r
 
 Built for the [#OpenSourceHiggsfield](https://comfy.org/open-source-higgsfield/) challenge. MIT licensed.
 
-![Comfy Studio, video tab with a reference-to-video workflow](docs/screenshots/video-studio.png)
+![Comfy Studio video tab with workflow cards and generation controls](video-studio.png)
 
 ## The idea
 
